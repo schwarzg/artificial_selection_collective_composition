@@ -1,12 +1,7 @@
 import numpy as np
-from model import model
-from tau_leaping import tau_leaping
 from growth_alter import *
 from selection import select
 from selection import community_function as cf
-from selection import score_function as sf
-from reproduction import hypergeometric_reproduce
-#import h5py as h5
 import os,sys
 
 #import matplotlib.pyplot as plt
@@ -26,6 +21,7 @@ tcycle=np.log(ncomm+1)/r
 if len(sys.argv)!=1:
 	mbar=int(sys.argv[1])	
 	rhat=float(sys.argv[2])
+
 descriptor="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle) 
 folder="data/raw/"+descriptor
 
@@ -42,10 +38,11 @@ rank = comm.Get_rank()
 '''
 
 if rank==0:
-	m0sel_ini=np.clip(np.random.normal(loc=mbar,scale=np.sqrt(mbar),size=ncomm).astype(int),0,1000)
+	m0sel_ini=np.sort(np.clip(np.random.binomial(N0,mbar/N0,size=ncomm).astype(int),0,N0))
 else:
 	m0sel_ini=np.empty(ncomm,dtype=int)
 
+#remove comment if use mpi
 #m0sel_ini=comm.bcast(m0sel_ini,root=0)
 
 w0sel_ini=N0-m0sel_ini
@@ -58,7 +55,7 @@ if rank==0:
 #comm.barrier()
 
 for e in range(rank,nensemble,nproc):
-	print('ens ',e)	
+	#prepare initial state
 	w0sel=np.copy(w0sel_ini)
 	m0sel=np.copy(m0sel_ini)
 	
@@ -68,7 +65,7 @@ for e in range(rank,nensemble,nproc):
 	m_selected=np.array([])
 	ind_selected=np.array([])
 	
-	#GSR model : Growth, Selection, and Reproduction
+	#Artificial selection cycle : Growth, Selection, and Reproduction
 	#run community lifecycle
 	for i in range(ncycle):
 		w_selected=np.append(w_selected,w0sel)
@@ -94,7 +91,6 @@ for e in range(rank,nensemble,nproc):
 		t_selected=np.append(t_selected,(i+1)*tcycle)	
 	
 		#reproduction phase	
-		#w0sel,m0sel=hypergeometric_reproduce(w_sel,m_sel,N0,Ngroup=10)	
 		m0sel=np.random.binomial(N0,cf(w_sel,m_sel),size=ncomm)
 		m0sel=np.sort(m0sel)
 		w0sel=N0-m0sel

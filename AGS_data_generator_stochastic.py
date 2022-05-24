@@ -3,15 +3,10 @@ from model import model
 from tau_leaping import tau_leaping
 from selection import select
 from selection import community_function as cf
-from selection import score_function as sf
-from reproduction import hypergeometric_reproduce
-#import h5py as h5
 import os,sys
 
-import matplotlib.pyplot as plt
 
 #Model parameter
-print("Arguement : mbar")
 mu=1e-4
 r=0.5
 s=5e-2
@@ -24,23 +19,14 @@ ncycle=10
 tcycle=np.log(ncomm+1)/r
 folder="data/raw/"
 
-cset=[
-
-'#a50026',
-'#d73027',
-'#f46d43',
-'#fdae61',
-'#fee090',
-'#e0f3f8',
-'#abd9e9',
-'#74add1',
-'#4575b4',
-'#313695'
-]
 
 
 if len(sys.argv)!=1:
 	mbar=int(sys.argv[1])	
+	rhat=float(sys.argv[2])
+
+descriptor="AGS_PD_sto_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle) 
+folder="data/raw/"+descriptor
 
 proFunc=[
 lambda x: r*x[0],
@@ -63,15 +49,15 @@ from mpi4py import MPI
 comm = MPI.COMM_WORLD
 nproc = comm.Get_size()
 rank = comm.Get_rank()
+'''
 if rank==0:
-	m0sel_ini=np.clip(np.random.normal(loc=mbar,scale=np.sqrt(mbar),size=ncomm).astype(int),0,1000)
+	m0sel_ini=np.sort(np.clip(np.random.binomial(N0,mbar/N0,size=ncomm).astype(int),0,N0))
 else:
 	m0sel_ini=np.empty(ncomm,dtype=int)
 
-m0sel_ini=comm.bcast(m0sel_ini,root=0)
-'''
+#remove comment if use mpi
+#m0sel_ini=comm.bcast(m0sel_ini,root=0)
 
-m0sel_ini=np.sort(np.clip(np.random.normal(loc=mbar,scale=np.sqrt(mbar),size=ncomm).astype(int),0,1000))
 w0sel_ini=N0-m0sel_ini
 	
 print("Initial setting:",w0sel_ini,m0sel_ini)
@@ -115,7 +101,7 @@ for e in range(rank,nensemble,nproc):
 			#Growth phase
 			T,X=solver.run(np.array([w0sel[j],m0sel[j]]),0,tcycle)
 			tsel=np.append(tsel,T[:-1]+i*tcycle)	
-			print('cycle',j,'from',T[0],'to',T[-1])
+			
 			wsel=np.append(wsel,X[0,:-1])
 			msel=np.append(msel,X[1,:-1])
 
@@ -123,12 +109,6 @@ for e in range(rank,nensemble,nproc):
 			lastw=np.append(lastw,X[0,-1])
 			lastm=np.append(lastm,X[1,-1])	
 	
-			#Trajectory data temporary test
-			if e==0:
-				import matplotlib.pyplot as plt
-				cfs=cf(X[0],X[1])
-				plt.plot(T+i*tcycle,cfs,c=cset[j])
-
 		#Selection phase
 		w_selected=np.append(w_selected,lastw)
 		m_selected=np.append(m_selected,lastm)
@@ -139,7 +119,7 @@ for e in range(rank,nensemble,nproc):
 		t_selected=np.append(t_selected,(i+1)*tcycle)	
 	
 		#reproduction phase	
-		w0sel,m0sel=hypergeometric_reproduce(w_sel,m_sel,N0,Ngroup=10)	
+		m0sel=np.random.binomial(N0,cf(w_sel,m_sel),size=ncomm)
 		m0sel=np.sort(m0sel)
 		w0sel=N0-m0sel
 	
@@ -147,38 +127,10 @@ for e in range(rank,nensemble,nproc):
 		plt.show()	
 	#Save data
 	#np.savetxt for data at cycle time only
-	output=np.hstack((np.array([t_selected,ind_selected]).T,w_selected.reshape(ncycle,ncomm),m_selected.reshape(ncomm,ncycle)))
-	np.savetxt(folder+"%s_%s_%s_%s_%s_%s_%s_AGS_%d.cycle"%(N0,mbar,r,s,mu,ncomm,rhat,e),output)
-
-	#Trajectory data
-	#np.savetxt(folder+"%s_%s_%s_%s_%s_%s_%s_AGS_%d.trajectory"%(N0,mbar,r,s,mu,ncomm,rhat,e),np.array([tsel,wsel,msel]))
+	output=np.hstack((np.array([t_selected,ind_selected]).T,w_selected.reshape(ncycle,2*ncomm),m_selected.reshape(ncycle,2*ncomm)))
+	np.savetxt(folder+"%d.cycle"%(e),output)
 	
 
-	
-	'''
-	#Prepare datafile for ensemble
-	f=h5.File(folder+"%s_%s_%s_%s_%s_%s_%s_AGS_%d.hdf5"%(N0,mbar,r,s,mu,ncomm,rhat,e),'w')
-
-	#data structure /comm/T,w,m and /s/T,w,m
-	for n in range(ncomm):
-		com=f.create_dataset('%d'%n,data=np.array([tsel,wsel,msel]).T)
-	#sel=f.create_dataset('s',data=np.array([t_selected,w_selected,m_selected]).T)
-
-	f.close()
-
-	import matplotlib.pyplot as plt
-	cx2.hlines(rhat,0,ncycle*tcycle,linestyles=':')
-	averaged=np.w_selected
-	cx2.plot(t_select,averaged,marker='x',ms=5,c='red',ls='--',label='w/ sel., avr')
-	cx2.fill_between(tselect,averaged+deviated,averaged-deviated,color='red',alpha=0.2)
-	cx2.fill_between(tselect,averagedGR+deviatedGR,averagedGR-deviatedGR,color='blue',alpha=0.2)
-	cx2.set_yscale('log')
-	cx2.set_ylabel(r'$C$')
-	cx2.set_xlabel(r'$t$')
-	cx2.legend(frameon=False)
-	plt.show()
-	'''
-	
 	
 
 #Finish MPI

@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import time
 
 #parameter prepare
 mu=1e-4
@@ -14,7 +13,9 @@ nens=300
 ncycle=10
 tcycle=np.log(ncomm+1)/r
 
-folder="data/one/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)
+folder="data/cond/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)
+if not os.path.exists(folder):
+	os.mkdir(folder)
 
 import scipy.stats as st
 import scipy.integrate as intg
