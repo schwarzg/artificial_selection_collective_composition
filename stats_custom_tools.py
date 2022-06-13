@@ -20,4 +20,4 @@ def quantile(q,bins,hist,x0=0,qmin=0,qmax=1):
 	sol=opt.brentq(y,x[0],x[-1])
 	return sol
 	
-
+	

@@ -62,5 +62,5 @@ ax.annotate(r'$f^L$',xy=(0,fl),xytext=(0.10,fl+0.10),arrowprops=dict(arrowstyle=
 #ax.set_xticklabels(['0.0','0.2',r'$f^L$','0.4','0.6','0.8','1.0'])
 '''
 
-#plt.savefig("fig3.svg",format="svg",dpi=300,bbox_inches='tight')
+plt.savefig("fig3.svg",format="svg",dpi=300,bbox_inches='tight')
 plt.show()

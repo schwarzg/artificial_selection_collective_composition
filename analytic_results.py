@@ -120,12 +120,12 @@ if __name__=='__main__':
 	
 	mu=1e-4
 	r=0.5
-	s=-3e-2
+	s=3e-2
 	N0=1000
 	mbar=100
 	ncomm=10
 	rhat=0.05
-	nens=500
+	nens=300
 	ncycle=10
 	tcycle=np.log(ncomm+1)/r
 
@@ -144,13 +144,18 @@ if __name__=='__main__':
 	w0=800
 	m0=200
 
-	m0=np.ones(nens)*990#np.clip(np.random.poisson(200,size=nens),0,1000)
+	m0=np.ones(nens)*800#np.clip(np.random.poisson(200,size=nens),0,1000)
 	w0=1000-m0
 	
 	barw=barw_th(np.mean(w0),tcycle,r,mu)	
 	sig2w=sig2w_th(np.mean(w0),np.var(w0),tcycle,r,mu)
 	barm=barm_th(np.mean(m0),np.mean(w0),tcycle,r,mu,s)
 	sig2m=sig2m_th(np.mean(m0),np.var(m0),np.mean(w0),np.var(w0),-np.var(m0),tcycle,r,mu,s)	
+	def get_f(w,m):
+		return np.divide(m,w+m)
+	c0=get_f(w0,m0)
+	barc=barc_th_v2(np.mean(c0),N0,tcycle,r,mu,s)
+	sig2c=sig2c_th_v2(np.mean(c0),np.var(c0),N0,tcycle,r,mu,s)
 	
 	ws=np.zeros(nens)
 	ms=np.zeros(nens)
@@ -163,7 +168,7 @@ if __name__=='__main__':
 		ms[e]=X[1,-1]	
 		ws2[e]=growth_sampling_w(np.mean(w0),np.var(w0),tcycle,r,mu,s)
 		ms2[e]=growth_sampling_m(np.mean(m0),np.var(m0),np.mean(w0),np.var(w0),-np.var(m0),tcycle,r,mu,s)
-	
+	cs=get_f(ws,ms)	
 	#ax=plt.axes((0.1,0.5,0.4,0.3))
 	ax2=plt.axes((0.1,0.5,0.35,0.3))
 	#ax.hist(w0,bins=10,density=True)
@@ -178,7 +183,7 @@ if __name__=='__main__':
 	ax2.legend(frameon=False,handlelength=0.5)
 
 	#bx=plt.axes((0.1,0.1,0.4,0.3))
-	bx2=plt.axes((0.6,0.5,0.35,0.3))
+	bx2=plt.axes((0.5,0.5,0.35,0.3))
 	#bx.hist(m0,bins=10,density=True)
 	bx2.hist(ms,bins=30,density=True,alpha=0.4)		
 	bx2.hist(ms2,bins=30,density=True,alpha=0.4)		
@@ -188,5 +193,11 @@ if __name__=='__main__':
 	bx2.plot(mrange,pdfm)
 	bx2.set_xlabel(r'$m$')
 	bx2.set_ylabel(r'$P(m)$')
+	cx2=plt.axes((0.1,0.1,0.35,0.3))
+	cx2.hist(cs,density=True,alpha=0.4)
+	crange=np.linspace(barc-3*np.sqrt(sig2c),barc+3*np.sqrt(sig2c),100)	
+	print(barc,sig2c,'?=',np.mean(cs),np.var(cs))	
+	pdfc=st.norm.pdf(crange,loc=barc,scale=np.sqrt(sig2c))
+	cx2.plot(crange,pdfc)
 	#plt.savefig('compare_tausampgauss.svg',dpi=300,bbox_inches='tight',format='svg')
 	plt.show()
