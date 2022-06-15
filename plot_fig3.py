@@ -6,7 +6,7 @@ from analytic_results import *
 #parameter prepare
 mu=1e-4
 r=0.5
-s=3e-2
+s=-3e-2
 N0=1000
 nens=300
 ncycle=1000
@@ -36,8 +36,10 @@ ax.scatter([0.05],[0.15],c='C3',marker='^')
 ax.scatter([0.5],[0.85],c='C1',marker='v')
 ax.scatter([0.5],[0.50],c='C2',marker='v')
 ax.scatter([0.5],[0.15],c='C3',marker='v')
-fl=0.28580445
-fu=0.68687363
+#fl=0.28580445
+#fu=0.68687363
+fl=0.32422324
+fu=0.64727173
 ax.hlines(fl,0,fl,colors='black',ls='--')
 ax.vlines(fl,0,fl,colors='black',ls='--')
 ax.hlines(fu,0,1,colors='black',ls='--')
