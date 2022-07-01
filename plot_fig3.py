@@ -36,10 +36,8 @@ ax.scatter([0.05],[0.15],c='C3',marker='^')
 ax.scatter([0.5],[0.85],c='C1',marker='v')
 ax.scatter([0.5],[0.50],c='C2',marker='v')
 ax.scatter([0.5],[0.15],c='C3',marker='v')
-#fl=0.28580445
-#fu=0.68687363
-fl=0.32422324
-fu=0.64727173
+fl=0.28580445
+fu=0.68687363
 ax.hlines(fl,0,fl,colors='black',ls='--')
 ax.vlines(fl,0,fl,colors='black',ls='--')
 ax.hlines(fu,0,1,colors='black',ls='--')
@@ -64,5 +62,5 @@ ax.annotate(r'$f^L$',xy=(0,fl),xytext=(0.10,fl+0.10),arrowprops=dict(arrowstyle=
 #ax.set_xticklabels(['0.0','0.2',r'$f^L$','0.4','0.6','0.8','1.0'])
 '''
 
-#plt.savefig("fig3.svg",format="svg",dpi=300,bbox_inches='tight')
+plt.savefig("Fig3.svg",format="svg",dpi=300,bbox_inches='tight')
 plt.show()

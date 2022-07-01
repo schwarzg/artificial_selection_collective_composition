@@ -29,6 +29,8 @@ from scipy.signal import savgol_filter
 Nf=(ncomm+2)*N0		#Nf is set to be (ncomm+1)*N0
 fbins=np.linspace(0,1,100)
 
+#get data
+
 #frequency loop
 fls=np.array([])
 fle=np.array([])
@@ -63,7 +65,7 @@ fls2=np.array([])
 fle2=np.array([])
 fus2=np.array([])
 fue2=np.array([])
-N0s=[800,900,1000,2000,4000,6000]
+N0s=[700,800,900,1000,2000,4000,6000]
 for N0 in N0s:
 	folder="data/cond/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)
 	seldat=np.loadtxt(folder+"_smedian.dat")
@@ -112,6 +114,7 @@ for N0 in N0s:
 	fle2=np.append(fle2,fl_ext)
 	fue2=np.append(fue2,fu_ext)
 
+#draw
 shadeup=1.1*np.ones(len(N0s))
 shadedw=np.zeros(len(N0s))
 print(shadeup,shadedw,fue2)
@@ -126,7 +129,7 @@ ax.plot(N0s,fle2,c='C1',label='Th,$f^L$',marker='^',ms=4,ls='--')
 ax.fill_between(N0s,fle2,shadedw,color='lightgray')
 ax.set_xscale('log')
 ax.set_xlim(xmin=500,xmax=6000)
-ax.fill_between([1,900],[1.1,1.1],color='lightgray')
+ax.fill_between([1,700],[1.1,1.1],color='lightgray')
 ax.set_ylabel(r'Mutant Frequency $f$')
 ax.set_xlabel(r'Newborn collective size $N_0$')
 ax.set_xticks([500,1000,5000])
