@@ -54,7 +54,8 @@ print(fl_ext,fu_ext)
 
 ##vioiline plot
 ax=plt.axes((0.1,0.6,0.5,0.4))
-ax.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+#ax.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+#ax.annotate(r'Mutant frequency of the selected Adult $\Psi(f_{k+1}-f_k^*|f_k^*)$',(-0.20,1.05),xycoords='axes fraction')
 ax,_=violinplot_from_histogram(ax,sel_pdf[mask],fbins_s[mask],positions=f0[mask],side='left',width=f0[mask][1]-f0[mask][0],yoffset=f0[mask],color='C0',alpha=0.5,marker=5,showmeans=False)
 ax,_=violinplot_from_histogram(ax,ext_pdf[mask],fbins_t[mask],positions=f0[mask],side='right',width=f0[mask][1]-f0[mask][0],yoffset=f0[mask],color='C1',alpha=0.5,marker=4,showmeans=False)
 #ax.scatter(f0[mask],(sel_median-f0)[mask],c='C0',marker=5)
@@ -62,7 +63,8 @@ ax,_=violinplot_from_histogram(ax,ext_pdf[mask],fbins_t[mask],positions=f0[mask]
 ax.hlines(0,0,1,colors='black',ls=':')
 ax.set_xlim(xmin=0,xmax=1)
 ax.set_ylim(ymin=-0.0401,ymax=0.0601)
-ax.set_ylabel(r'$\Delta f^*=f^*_{k+1}-f^*_k$')
+ax.set_ylabel(r'$f-f^*_k$')
+ax.set_xlabel(r'Selected mutant frequency of the selected Adult in cycle $k$, $f^*_k$')
 
 #legend plot
 lx=plt.axes((0.49,0.857,0.1,0.13))
@@ -76,9 +78,10 @@ lx.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
 lx.set_xlim(xmin=-0.4,xmax=0.4)
 lx.annotate('Sim',xy=(-0.37,1.9),annotation_clip=False,color='C0') 
 lx.annotate('Th',xy=(0.07,1.9),color='C1') 
-
+'''
 bx=plt.axes((0.1,0.1,0.5,0.4))
 bx.annotate('b',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+bx.annotate(r'Median of $\Psi$',(-0.20,1.05),xycoords='axes fraction')
 bx.plot(f0,sel_median-f0,c='C0',label='Simulation')
 bx.plot(f0,ext_median-f0,c='C1',label='Theory')
 bx.hlines(0,0,1,colors='black',ls=':')
@@ -87,8 +90,9 @@ bx.annotate(r'$f^L$',xy=(fl_ext,-0.0215),xytext=(fl_ext-0.1,-0.019),arrowprops=d
 bx.annotate(r'$f^U$',xy=(fu_ext,-0.022),xytext=(fu_ext+0.06,-0.019),arrowprops=dict(arrowstyle='->'))
 bx.set_ylim(ymin=-0.022,ymax=0.022)
 bx.set_xlim(xmin=0,xmax=1)
-bx.set_xlabel(r'Selected Frac. in Cycle $k$, $f^*_k$')
-bx.set_ylabel(r'$\mathrm{Median}(\Delta f^*)$')
+bx.set_xlabel(r'Selected mutant frequency of the selected Adult in cycle $k$, $f^*_k$')
+bx.set_ylabel(r'$f-f^*_k$')
 bx.legend(handlelength=0.6,frameon=False,loc=8)
-plt.savefig('Fig4.svg',dpi=300,bbox_inches='tight',format='svg')
+'''
+plt.savefig('FigS4.svg',dpi=300,bbox_inches='tight',format='svg')
 plt.show()

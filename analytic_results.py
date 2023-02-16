@@ -120,7 +120,7 @@ if __name__=='__main__':
 	
 	mu=1e-4
 	r=0.5
-	s=3e-2
+	s=-3e-2
 	N0=1000
 	mbar=100
 	ncomm=10

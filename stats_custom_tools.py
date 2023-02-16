@@ -11,7 +11,9 @@ import scipy.optimize as opt
 import matplotlib.pyplot as plt
 
 #quartile of 1D histogram
-def quantile(q,bins,hist,x0=0,qmin=0,qmax=1):
+#if type is 'a', search median using Cumulative function
+#if type is 'd', search median using 1- Cumulative function
+def quantile(q,bins,hist,x0=0,qmin=0,qmax=1,search_type='a'):
 	x=bins[:-1]+0.5*(bins[1]-bins[0])
 	cums=np.cumsum(hist*(bins[1]-bins[0]))
 	y=itp.interp1d(x,cums-q,fill_value='extrapolate')

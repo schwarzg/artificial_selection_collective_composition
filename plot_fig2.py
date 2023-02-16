@@ -12,7 +12,7 @@ plt.rc('font',size=10)
 
 mu=1e-4
 r=0.5
-s=3.0e-2
+s=3.5e-2
 N0=1000
 mbar=50
 ncomm=10
@@ -348,6 +348,6 @@ cx4.set_ylabel(r'Selected Freq. $\langle f^*\rangle$')
 cx4.set_ylim(ymin=0,ymax=1)
 cx4.set_xlim(xmin=1)
 cx4.set_xscale('log')
-plt.savefig('Fig2_v5.svg',dpi=300,bbox_inches='tight',format='svg')
+#plt.savefig('Fig2_v5.svg',dpi=300,bbox_inches='tight',format='svg')
 plt.show()
 

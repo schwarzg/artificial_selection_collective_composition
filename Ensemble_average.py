@@ -6,7 +6,7 @@ import tqdm.contrib.itertools as titt
 	
 mu=1e-4
 r=0.5
-s=3e-2
+s=3.5e-2
 N0=1000
 ncycle=1000
 ncomm=10
@@ -26,7 +26,6 @@ for (rhat,mbar) in titt.product(rhats,mbars):
 	descriptor="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle) 
 	infolder="data/raw/"+descriptor+"/"
 	outfolder="data/ens/"+descriptor
-	'''	
 	AGS=[]
 	for e in range(nensemble):
 		AGS.append(np.loadtxt(infolder+"%d.cycle"%(e)))
@@ -54,6 +53,7 @@ for (rhat,mbar) in titt.product(rhats,mbars):
 	np.savetxt(outfolder+"_nens%d.cycle"%nensemble,np.array([choavg,chostd,cho75,cho25]).T)
 	'''
 	choavg,chostd,cho75,cho25=np.loadtxt(outfolder+"_nens%d.cycle"%nensemble,unpack=True)
+	'''	
 	#save data for fig3
 	dats.append(np.fabs(np.mean(choavg[-1])-rhat)/(rhat+1e-12))
 

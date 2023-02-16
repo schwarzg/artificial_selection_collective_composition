@@ -540,7 +540,7 @@ if __name__=='__main__':
 	#parameter prepare
 	mu=1e-4
 	r=0.5
-	s=3e-2
+	s=-3e-2
 	N0=1000
 	mbar=100
 	ncomm=10
@@ -574,7 +574,7 @@ if __name__=='__main__':
 	solver=tau_leaping(model=growthmodel,eps=0.03)
 	
 	#Start from give initial state
-	fsel=0.5
+	fsel=0.20
 	nens=1000
 	#For save all data
 	lastw=np.array([])
@@ -614,17 +614,17 @@ if __name__=='__main__':
 	fbinexmid=fbinsex[:-1]+0.5*(fbinsex[1]-fbinsex[0])
 	fbinsfine=np.linspace(np.min(cfs)-0.05,np.max(cfs)+0.05,100)
 	fbinsfinemid=fbinsfine[:-1]+0.5*(fbinsfine[1]-fbinsfine[0])
-	dat,_,_=plt.hist(cfs,bins=fbins,density=True,alpha=0.5,histtype='step')
-	plt.plot(fbinmid,st.norm.pdf(fbinmid,loc=np.mean(cfs),scale=np.std(cfs)),color='green',lw=1) # fitting from stochastic data
+	dat,_,_=plt.hist(cfs,bins=fbins,density=True,alpha=0.5,histtype='step',label='Simulation')
+	plt.plot(fbinmid,st.norm.pdf(fbinmid,loc=np.mean(cfs),scale=np.std(cfs)),color='green',lw=1,label='Fitting') # fitting from stochastic data
 	
 	pdf=transition_probability_iid_pdf(fbinmid,fsel,t,N0,r,mu,s)
-	plt.plot(fbinmid,pdf,c='black',lw=1)
+	plt.plot(fbinmid,pdf,c='black',lw=1,label='Theory')
 	
 	barc=barc_th_v2(fsel,N0,t,r,mu,s)
 	sig2c=sig2c_th_v2(fsel,fsel*(1-fsel)/N0,N0,t,r,mu,s)
 	print('mean=',np.mean(cfs),barc,'std=',np.std(cfs),np.sqrt(sig2c))
 	
-	datex,_,_=plt.hist(minf,bins=fbinsex,density=True,alpha=0.5,histtype='step')
+	datex,_,_=plt.hist(minf,bins=fbinsex,density=True,alpha=0.5,histtype='step',label='Simex')
 	
 	pdf=transition_probability_iid_pdf(fbinsfinemid,fsel,t,N0,r,mu,s)
 	pdfnorm=simpson(pdf,dx=fbinsfine[1]-fbinsfine[0])
@@ -634,12 +634,13 @@ if __name__=='__main__':
 	print(cdf[-1])
 	cdf=cdf/cdf[-1]
 	extpdf=ncomm*(1-cdf)**(ncomm-1)*pdf #Same dimension with dat
-	plt.plot(fbinsfinemid,extpdf,c='red',lw=1)
+	plt.plot(fbinsfinemid,extpdf,c='red',lw=1,label='Theo_ext')
 
 	from stats_custom_tools import * 
 	extmedian=quantile(0.5,fbinsfine,extpdf,x0=np.min(fbinsfine))
 	extmean=simpson(fbinsfine[:-1]*extpdf,dx=fbinsfine[1]-fbinsfine[0])
 
 	print(np.mean(minf),extmean,np.median(minf),extmedian)	
+	plt.legend()
 	
 	plt.show()
