@@ -1,47 +1,77 @@
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-#Two strain case
-ax=plt.axes((0.1,0.7,0.4,0.3))
+
+############################################
+# Schematic - maturation of three strain
+############################################
+
+cc=['#75140c','#0044aa','#a004bf']
+
+#location fix
+mxx=0.1
+mxy=0.45-0.28-0.05
+mx=plt.axes((mxx,mxy,0.45,0.45))
+mx.annotate('a',xy=(0.,1.075),weight='bold',xycoords='axes fraction')
+mx.annotate(' Three-strain system',xy=(0.05,1.075),xycoords='axes fraction')
+def draw_birth(ax,x,y,ut='',dt='',c='r',scale=1,length=3):
+    rad=0.4
+    ax.add_patch(mpl.patches.Circle((x,y), radius=rad, color=c,ec='black'))
+    ax.annotate('',xy=(x+0.5+length,y),xytext=(x+0.5,y),arrowprops=dict(arrowstyle='->'))
+    ax.add_patch(mpl.patches.Circle((x+length+1,y), radius=rad, color=c,ec='black'))
+    ax.add_patch(mpl.patches.Circle((x+length+2,y), radius=rad, color=c,ec='black'))
+    ax.annotate(ut,xy=(x+2,y+0.1),ha='center',va='bottom')
+    ax.annotate(dt,xy=(x+2,y-0.1),ha='center',va='top')
+    return ax
+
+def draw_mutation(ax,x,y,cl='r',cr='b',scale=1):
+    rad=0.4
+    ax.add_patch(mpl.patches.Circle((x,y), radius=rad, color=cl,ec='black'))
+    ax.annotate('',xy=(x+3.5,y),xytext=(x+0.5,y),arrowprops=dict(arrowstyle='->'))
+    ax.add_patch(mpl.patches.Circle((x+4,y), radius=rad, color=cr,ec='black'))
+    ax.annotate('',xy=(x+2,y+0.1),ha='center',va='bottom')
+    return ax
+
+rx1=0
+ry1=0
+
+mx.annotate(r'Reactions',xy=(rx1,ry1+2.),ha='left',va='center')
+mx.annotate(r'Rates',xy=(rx1+6.5,ry1+2.),ha='left',va='center')
 
 
-#ax.hlines(0,0,1,colors='black',lw=3)
-ax.annotate('',xy=(1,0),xytext=(0,0),arrowprops=dict(arrowstyle='->'))
-#ax.fill_between([0.3,0.7],0.02,0,color='lightgray')
-ax.fill_between([0,0.3],0.02,0,color='green',alpha=0.5)
-ax.fill_between([0.7,1],0.02,0,color='red',alpha=0.5)
-#ax.annotate('Fail',xy=(0.45,0.005))
-ax.annotate(r'$0$',xy=(0,-0.02))
-ax.annotate(r'$1$',xy=(0.95,-0.02))
-ax.annotate('Mutant\nfrequency',xy=(1.05,-0.005))
-ax.annotate('(a) Two-strain',xy=(-0.2,0.95),xycoords='axes fraction')
-
-ax.set_ylim(ymin=-0.05,ymax=0.05)
-
-ax.scatter(0.25,0.01,c='black',marker='s')
-ax.annotate('Target',xy=(0.25,0.015),xytext=(0.2,0.03),arrowprops=dict(arrowstyle='->'))
-ax.scatter(0.9,0.01,c='black')
-ax.annotate('Initial',xy=(0.9,0.015),xytext=(0.8,0.03),arrowprops=dict(arrowstyle='->'))
-ax.scatter(0.05,0.01,c='black',marker='v')
-ax.annotate('Initial',xy=(0.05,0.015),xytext=(-0.05,0.03),arrowprops=dict(arrowstyle='->'))
-ax.annotate('',xy=(0.25,0.01),xytext=(0.05,0.01),arrowprops=dict(arrowstyle='->'))
-ax.annotate('',xy=(0.25,0.01),xytext=(0.9,0.01),arrowprops=dict(arrowstyle='->'))
-#ax.plot([0.25,0.9],[0.01,0.01],ls=':',color='black')
-ax.scatter([0.5],[0.01],marker='x',color='red')
-ax.annotate('Fail',xy=(0.5,0.01),xytext=(0.45,-0.03),arrowprops=dict(arrowstyle='->'))
-ax.scatter([0.15],[0.01],facecolor='none',edgecolor='blue')
-ax.annotate('Success',xy=(0.15,0.01),xytext=(0.05,-0.03),arrowprops=dict(arrowstyle='->'))
-
-ax.vlines([0.3,0.7],0.005,-0.005,colors='black')
-ax.annotate(r'$f^L$',xy=(0.28,-0.02))
-ax.annotate(r'$f^U$',xy=(0.68,-0.02))
-
-ax.legend(frameon=False,loc=(0,-0.1))
-ax.axis('off')
+draw_birth(mx,rx1,ry1,c=cc[0],length=3)
+mx.annotate(r'$r$',xy=(rx1+6.5,ry1),ha='left',va='center')
 
 
-#Three strain case
-bx=plt.axes((0.1,0.2,0.4,0.4))
-bx.annotate('(b) Three-strain',xy=(-0.2,1.1),xycoords='axes fraction')
+ry2=-2.5
+draw_birth(mx,rx1,ry2,c=cc[1],length=3)
+mx.annotate(r'$r+s$',xy=(rx1+6.5,ry2),ha='left',va='center')
+
+ry3=-5
+draw_birth(mx,rx1,ry3,c=cc[2],length=3)
+mx.annotate(r'$r+2s$',xy=(rx1+6.5,ry3),ha='left',va='center')
+
+rx2=7
+ry4=ry3-3.0
+draw_mutation(mx,rx1,ry4,cl=cc[0],cr=cc[1])
+mx.annotate(r'$\mu$',xy=(rx1+6.5,ry4),ha='left',va='center')
+
+ry5=ry3-5.5
+draw_mutation(mx,rx1,ry5,cl=cc[1],cr=cc[2])
+mx.annotate(r'$\mu$',xy=(rx1+6.5,ry5),ha='left',va='center')
+
+mx.axis('scaled')
+mx.tick_params(left=False,bottom=False,labelleft=False,labelbottom=False)
+mx.set_ylim(ymin=-12.5,ymax=3)
+mx.set_xlim(xmin=-2,xmax=10.0)
+
+    
+
+    
+
+############################################
+#prepare for triangle plot
+############################################
 
 x1=[0,1]
 y1=[0,0]
@@ -64,11 +94,11 @@ a1=(cv1yl-cv1yr)/(cv1xl**2-cv1xr**2)
 b1=(-cv1xr**2*cv1yl+cv1xl**2*cv1yr)/(cv1xl**2-cv1xr**2)
 
 cv1x=np.arange(cv1xl,cv1xr+0.005,0.01)
-cv1y=curve1(cv1x,a1,b1)
+cv1y=curve1p(cv1x,cv1xl,cv1yl,cv1xr,cv1yr)
 
-cv2yl=0.71
+cv2yl=0.61
 cv2xl=cv2yl/np.sqrt(3)
-cv2yr=0.7
+cv2yr=0.6
 cv2xr=1-cv2yr/np.sqrt(3)
 
 def curve2(x,a,b,c):
@@ -81,122 +111,160 @@ b2=(-(cv2xr-c)**2*cv2yl+(cv2xl-c)**2*cv2yr)/((cv2xl-c)**2-(cv2xr-c)**2)
 cv2x=np.arange(cv2xl,cv2xr+0.005,0.01)
 cv2y=curve2(cv2x,a2,b2,c)
 
-bx.plot(x1,y1,c='black')
-bx.plot(x2,y2,c='black')
-bx.plot(x3,y3,c='black')
-bx.annotate('Wild type\nfrequency',xy=(-0.1,-0.15),xycoords='axes fraction')
-bx.annotate('Single mutant\nfrequency',xy=(0.83,-0.15),xycoords='axes fraction')
-bx.annotate('Double mutant\nfrequency',xy=(0.3,1.02),xycoords='axes fraction')
-
-
-#divide 3regions
-
-#region 1
-#x1=np.linspace(cv1xl,cv2xl,30)
-#y1u=x1*np.sqrt(3)
-#y1d=curve1(x1,a1,b1)
-#bx.fill_between(x1,y1u,y1d,color='lightgray')
-
-#region2
-#x2=np.linspace(cv2xl,cv2xr,30)
-#y2u=curve2(x2,a2,b2,c)
-#y2d=curve1(x2,a1,b1)
-#bx.fill_between(x2,y2u,y2d,color='lightgray')
-#bx.annotate('Fail',xy=(0.45,0.4))
-
-#region2
-#x3=np.linspace(cv2xr,cv1xr,30)
-#y3u=-np.sqrt(3)*(x3-1)
-#y3d=curve1(x3,a1,b1)
-#bx.fill_between(x3,y3u,y3d,color='lightgray')
-
 #low region1
 xl1=np.linspace(0,cv1xl)
 yl1=np.sqrt(3)*xl1
-bx.fill_between(xl1,yl1,0,color='lightgray')
 
 #low region2
 xl2=np.linspace(cv1xl,cv1xr)
 #yl2=curve1(xl2,a1,b1)
 yl2=curve1p(xl2,cv1xl,cv1yl,cv1xr,cv1yr)
-bx.fill_between(xl2,yl2,0,color='lightgray')
 
 #low region3
 xl3=np.linspace(cv1xr,1)
 yl3=-np.sqrt(3)*(xl3-1)
-bx.fill_between(xl3,yl3,0,color='lightgray')
+
 
 #high region1
 xh1=np.linspace(cv2xl,0.5)
 yh1u=np.sqrt(3)*xh1
 yh1d=curve2(xh1,a2,b2,c)
-bx.fill_between(xh1,yh1u,yh1d,color='lightgray')
+
 
 #high region1
 xh2=np.linspace(0.5,cv2xr)
 yh2u=-np.sqrt(3)*(xh2-1)
 yh2d=curve2(xh2,a2,b2,c)
-bx.fill_between(xh2,yh2u,yh2d,color='lightgray',label='Artificial\n-selection\n-dominant')
-
 
 #point initial and target
 i1x=0.5
 i1y=0.75
-bx.scatter(i1x,i1y,color='black',label='Initial 1')
-bx.annotate('Initial',xy=(i1x,i1y),xytext=(i1x+0.1,i1y),arrowprops=dict(arrowstyle='->'))
-
-
-
 i2x=0.05
 i2y=0.03
-bx.scatter(i2x,i2y,color='black',marker='v',label='Initial 2')
-bx.annotate('Initial',xy=(i2x-0.01,i2y-0.01),xytext=(i2x-0.15,i2y+0.1),arrowprops=dict(arrowstyle='->'))
 
 i3x=0.3
 i3y=0.00
-bx.scatter(i3x,i3y,color='black',marker='^',label='Initial 3')
-bx.annotate('Initial',xy=(i3x,i3y-0.01),xytext=(i3x,i3y-0.2),arrowprops=dict(arrowstyle='->'))
 
+
+#Three strain case
+#cxx=0.1
+#cxy=-0.30
+cxx=mxx+0.35#0.55
+cxy=mxy+0.1#0.37
+
+cx=plt.axes((cxx,cxy,0.35,0.35))
+cx.annotate('b',xy=(-0.0,1.1),weight='bold',xycoords='axes fraction')
+cx.annotate(' Simulation of composition trajectories according to initial/target points',xy=(0.05,1.1),xycoords='axes fraction')
+cx.plot(x1,y1,c='black')
+cx.plot(x2,y2,c='black')
+cx.plot(x3,y3,c='black')
+cx.add_patch(mpl.patches.Circle((-0.10,-0.10), radius=0.07, color=cc[0],ec='black'))
+cx.add_patch(mpl.patches.Circle((1.10,-0.10), radius=0.07, color=cc[1],ec='black'))
+cx.add_patch(mpl.patches.Circle((0.5,1.00), radius=0.07, color=cc[2],ec='black'))
+
+
+cx.fill_between(xl1,yl1,0,color='lightgray')
+cx.fill_between(xl2,yl2,0,color='lightgray')
+cx.fill_between(xl3,yl3,0,color='lightgray')
+cx.fill_between(xh1,yh1u,yh1d,color='lightgray')
+cx.fill_between(xh2,yh2u,yh2d,color='lightgray',label='Accessible by inter-collective selection')
+cx.fill_between(xh2,yh2u,yh2u,color='white',label='Not accessible')
+
+cx.scatter(i1x,i1y,color='black',label='Initial',fc='white',zorder=20)
+cx.scatter(i2x,i2y,color='black',fc='white',zorder=20)
+cx.scatter(i3x,i3y,color='black',fc='white',zorder=20)
+fx=0.4
+fy=np.sqrt(3)*0.37
+cx.scatter(fx,fy,color='black',label='Target')
+
+cx.annotate('',xy=(fx,fy),xytext=(i1x,i1y),arrowprops=dict(arrowstyle='->',color='green'),label='')
+cx.annotate('',xy=(fx,fy),xytext=(i2x,i2y),arrowprops=dict(arrowstyle='->',color='green'))
+cx.annotate('',xy=(fx,fy),xytext=(i3x,i3y),arrowprops=dict(arrowstyle='->',color='green'))
+lb=cx.legend(frameon=False,loc=(0,-0.3),ncol=2)
+lb.legendHandles[1].set_edgecolor('black')
+cx.axis('scaled')
+cx.axis('off')
+
+cx.annotate('',xy=(0.8,0.1),xytext=(0.2,0.1),xycoords='axes fraction',arrowprops=dict(arrowstyle='simple',color='C0',mutation_scale=20))
+cx.annotate('',xy=(0.9,0.8),xytext=(0.9,0.2),xycoords='axes fraction',arrowprops=dict(arrowstyle='simple',color='C0',mutation_scale=20))
+cx.annotate('Intra-collective\nSelection',xy=(1.1,0.9),ha='center',va='bottom',color='C0')
+
+
+#second plot
+cx2=plt.axes((cxx+0.30,cxy,0.35,0.35))
+cx2.plot(x1,y1,c='black')
+cx2.plot(x2,y2,c='black')
+cx2.plot(x3,y3,c='black')
+cx2.add_patch(mpl.patches.Circle((-0.10,-0.10), radius=0.07, color=cc[0],ec='black'))
+cx2.add_patch(mpl.patches.Circle((1.10,-0.10), radius=0.07, color=cc[1],ec='black'))
+cx2.add_patch(mpl.patches.Circle((0.5,1.00), radius=0.07, color=cc[2],ec='black'))
+
+#low region1
+cx2.fill_between(xl1,yl1,0,color='lightgray')
+
+#low region2
+cx2.fill_between(xl2,yl2,0,color='lightgray')
+
+#low region3
+cx2.fill_between(xl3,yl3,0,color='lightgray')
+
+#high region1
+cx2.fill_between(xh1,yh1u,yh1d,color='lightgray')
+
+#high region1
+cx2.fill_between(xh2,yh2u,yh2d,color='lightgray')#,label='Artificial\n-selection\n-dominant')
+
+
+cx2.scatter(i1x,i1y,color='black',label='Initial',fc='white',zorder=20)
+cx2.scatter(i2x,i2y,color='black',fc='white',zorder=20)
+cx2.scatter(i3x,i3y,color='black',fc='white',zorder=20)
+fx=0.5
+fy=np.sqrt(3)*0.2
+cx2.scatter(fx,fy,color='black',label='Target')
+cx2.annotate('',xy=(cv2xr,cv2yr),xytext=(i1x,i1y),arrowprops=dict(arrowstyle='->',color='red'))
+cx2.annotate('',xy=(cv2xr,cv2yr),xytext=(i2x,i2y),arrowprops=dict(arrowstyle='->',color='red'))
+cx2.annotate('',xy=(cv2xr,cv2yr),xytext=(i3x,i3y),arrowprops=dict(arrowstyle='->',color='red'))
+cx2.axis('scaled')
+cx2.axis('off')
+
+
+
+
+cx3=plt.axes((cxx+0.6,cxy,0.35,0.35))
+cx3.add_patch(mpl.patches.Circle((-0.10,-0.10), radius=0.07, color=cc[0],ec='black'))
+cx3.add_patch(mpl.patches.Circle((1.10,-0.10), radius=0.07, color=cc[1],ec='black'))
+cx3.add_patch(mpl.patches.Circle((0.5,1.00), radius=0.07, color=cc[2],ec='black'))
+
+cx3.plot(x1,y1,c='black')
+cx3.plot(x2,y2,c='black')
+cx3.plot(x3,y3,c='black')
+
+
+cx3.fill_between(xl1,yl1,0,color='lightgray')
+cx3.fill_between(xl2,yl2,0,color='lightgray')
+cx3.fill_between(xl3,yl3,0,color='lightgray')
+cx3.fill_between(xh1,yh1u,yh1d,color='lightgray')
+cx3.fill_between(xh2,yh2u,yh2d,color='lightgray',label='AS-dominant')
+
+
+
+cx3.scatter(i1x,i1y,color='black',label='Initial 1',fc='white',zorder=20)
+cx3.scatter(i2x,i2y,color='black',fc='white',zorder=20)
+cx3.scatter(i3x,i3y,color='black',fc='white',zorder=20)
 fx=0.85
 fy=0.15
-bx.scatter(fx,fy,marker='s',color='black',label='Target')
-bx.annotate('Target',xy=(fx,fy),xytext=(fx+0.1,fy),arrowprops=dict(arrowstyle='->'))
+cx3.scatter(fx,fy,color='black',label='Target')
 
+cx3.annotate('',xy=(cv2xr,cv2yr),xytext=(i1x,i1y),arrowprops=dict(arrowstyle='->',color='red'))
+cx3.annotate('',xy=(cv1xr,cv1yr),xytext=(i2x,i2y),arrowprops=dict(arrowstyle='->',color='red'))
+cx3.annotate('',xy=(fx,fy),xytext=(i3x,i3y),arrowprops=dict(arrowstyle='->',color='green'))
+cx3.annotate('Success',xy=(0.4,-0.1),xytext=(0.6,-0.1),xycoords='axes fraction',arrowprops=dict(arrowstyle='<-',color='green'),va='center')
+cx3.annotate('Fail',xy=(0.4,-0.22),xytext=(0.6,-0.22),xycoords='axes fraction',arrowprops=dict(arrowstyle='<-',color='red'),va='center')
 
-#for x1 to f
-xline=np.arange(i1x,fx,0.01)
-path1=lambda x:(x-fx)*(i1y-fy)/(i1x-fx)+fy
-diff=lambda x:curve2(x,a2,b2,c)-path1(x)
-import scipy.optimize as opt
+cx3.axis('scaled')
+cx3.axis('off')
 
-crossx=opt.fsolve(diff,0.5)[0]
-crossy=curve2(crossx,a2,b2,c)
-
-bx.annotate('',xy=(fx,fy),xytext=(i1x,i1y),arrowprops=dict(arrowstyle='->'))
-#bx.plot([i1x,fx],[i1y,fy],c='black',ls=':')
-locx1x=0.5*(fx+i1x)
-locx1y=0.5*(i1y+fy)
-bx.scatter([locx1x],[locx1y],marker='x',color='red')
-bx.annotate('Fail',xy=(locx1x,locx1y),xytext=(locx1x+0.2,locx1y),arrowprops=dict(arrowstyle='->'))
-
-#for x2 to f
-bx.annotate('',xy=(fx,fy),xytext=(i2x,i2y),arrowprops=dict(arrowstyle='->'))
-bx.scatter([0.5*(fx+i2x)],[0.5*(i2y+fy)],marker='x',color='red')
-locx2x=0.5*(fx+i2x)
-locx2y=0.5*(i2y+fy)
-bx.annotate('Fail',xy=(locx2x,locx2y),xytext=(locx2x-0.1,locx2y+0.2),arrowprops=dict(arrowstyle='->'))
-
-#for x3 to f
-bx.annotate('',xy=(fx,fy),xytext=(i3x,i3y),arrowprops=dict(arrowstyle='->'))
-bx.scatter([0.5*(fx+i3x)],[0.5*(i3y+fy)],facecolor='none',edgecolor='blue')
-locx3x=0.5*(fx+i3x)
-locx3y=0.5*(i3y+fy)
-bx.annotate('Success',xy=(locx3x,locx3y),xytext=(locx3x,locx3y-0.25),arrowprops=dict(arrowstyle='->'))
-
-#bx.legend(frameon=False,loc=(0.8,0.3))
-bx.axis('off')
-
-formatter='svg'
-#plt.savefig('Fig6.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+formatter='svg' #or png
+plt.savefig('figures/Fig6.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 
 plt.show()

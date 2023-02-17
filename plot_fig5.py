@@ -188,6 +188,7 @@ bx.set_xticks([5,10,50,100])
 bx.set_xticklabels([5,10,50,100])
 bx.set_xlim(4,100)
 
-plt.savefig('Fig5_v2.svg',dpi=300,bbox_inches='tight',format='svg')
+formatter='svg' #or png
+plt.savefig('figures/Fig5.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 

@@ -78,21 +78,8 @@ lx.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
 lx.set_xlim(xmin=-0.4,xmax=0.4)
 lx.annotate('Sim',xy=(-0.37,1.9),annotation_clip=False,color='C0') 
 lx.annotate('Th',xy=(0.07,1.9),color='C1') 
-'''
-bx=plt.axes((0.1,0.1,0.5,0.4))
-bx.annotate('b',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
-bx.annotate(r'Median of $\Psi$',(-0.20,1.05),xycoords='axes fraction')
-bx.plot(f0,sel_median-f0,c='C0',label='Simulation')
-bx.plot(f0,ext_median-f0,c='C1',label='Theory')
-bx.hlines(0,0,1,colors='black',ls=':')
-bx.vlines([fl_ext,fu_ext],-0.05,0.05,colors='black',ls='--')
-bx.annotate(r'$f^L$',xy=(fl_ext,-0.0215),xytext=(fl_ext-0.1,-0.019),arrowprops=dict(arrowstyle='->'))
-bx.annotate(r'$f^U$',xy=(fu_ext,-0.022),xytext=(fu_ext+0.06,-0.019),arrowprops=dict(arrowstyle='->'))
-bx.set_ylim(ymin=-0.022,ymax=0.022)
-bx.set_xlim(xmin=0,xmax=1)
-bx.set_xlabel(r'Selected mutant frequency of the selected Adult in cycle $k$, $f^*_k$')
-bx.set_ylabel(r'$f-f^*_k$')
-bx.legend(handlelength=0.6,frameon=False,loc=8)
-'''
-plt.savefig('FigS4.svg',dpi=300,bbox_inches='tight',format='svg')
+
+
+formatter='svg'
+plt.savefig('FigS4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()

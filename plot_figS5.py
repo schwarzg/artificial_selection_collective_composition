@@ -111,24 +111,6 @@ cx.set_ylim(ymin=0,ymax=1)
 cx.set_xlabel(r'Initial Frequency $\bar{f}_o$')
 cx.set_ylabel(r'Target Frequency $\hat{f}$')
 
-'''
-#Suppoting information
-cx.scatter([0.05],[0.85],c='C1',marker='^')
-cx.scatter([0.05],[0.50],c='C2',marker='^')
-cx.scatter([0.05],[0.15],c='C3',marker='^')
-cx.scatter([0.5],[0.85],c='C1',marker='v')
-cx.scatter([0.5],[0.50],c='C2',marker='v')
-cx.scatter([0.5],[0.15],c='C3',marker='v')
-fl=0.28580445
-fu=0.68687363
-cx.hlines(fl,0,fl,colors='black',ls='--')
-cx.vlines(fl,0,fl,colors='black',ls='--')
-cx.hlines(fu,0,1,colors='black',ls='--')
-cx.annotate(r'$f^L$',xy=(0,fl),xytext=(0.10,fl+0.10),arrowprops=dict(arrowstyle='->'))
-cx.annotate(r'$f^L$',xy=(fl,0),xytext=(fl+0.10,0.10),arrowprops=dict(arrowstyle='->'))
-cx.annotate(r'$f^U$',xy=(0,fu),xytext=(0.10,fu-0.10),arrowprops=dict(arrowstyle='->'))
-
-'''
 ############################################
 # for negative s
 ############################################
@@ -146,5 +128,5 @@ cx.annotate(r'$f^L$',xy=(0,fl),xytext=(0.10,fl+0.10),arrowprops=dict(arrowstyle=
 #ax.set_xticklabels(['0.0','0.2',r'$f^L$','0.4','0.6','0.8','1.0'])
 
 formatter='svg'
-plt.savefig('FigS5.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/FigS5.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()

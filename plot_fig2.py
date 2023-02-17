@@ -348,6 +348,7 @@ cx4.set_ylabel(r'Selected Freq. $\langle f^*\rangle$')
 cx4.set_ylim(ymin=0,ymax=1)
 cx4.set_xlim(xmin=1)
 cx4.set_xscale('log')
-#plt.savefig('Fig2_v5.svg',dpi=300,bbox_inches='tight',format='svg')
+formatter='svg' #or 'png'
+plt.savefig('figures/Fig2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 
