@@ -81,5 +81,5 @@ lx.annotate('Th',xy=(0.07,1.9),color='C1')
 
 
 formatter='svg'
-plt.savefig('figures/FigS4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+#plt.savefig('figures/FigS4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
