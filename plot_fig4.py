@@ -64,12 +64,12 @@ cxy=0.0
 
 ##median plot
 ax=plt.axes((axx,axy,0.5,0.35))
-ax.annotate('a',(-0.25,1.07),xycoords='axes fraction',fontweight='bold')
-ax.annotate(r'Median of selected mutant frequency in $\Psi(f^*_{k+1}=f|f_k^*)$',(-0.20,1.07),xycoords='axes fraction')
+ax.annotate('a',(-0.25,1.19),xycoords='axes fraction',fontweight='bold')
+ax.annotate(r'Median of selected mutant frequency distribution $\Psi(f^*_{k+1}|f_k^*)$'+'\n'+r'with shift $-f^*_k$',(-0.20,1.07),xycoords='axes fraction')
 ax.hlines(0,0,1,colors='black',ls=':')
 ax.set_xlim(xmin=0,xmax=1)
 ax.set_ylim(ymin=-0.022,ymax=0.022)
-ax.set_ylabel(r'$f-f^*_k$')
+ax.set_ylabel(r'$f^*_{k+1}-f^*_k$')
 ax.set_xlabel(r" Selected mutant frequency in cycle $k$, $f^*_k$")
 
 ax.plot(f0,sel_median-f0,c='C0',label='Simulation')
@@ -118,8 +118,8 @@ bx.set_xlabel(r" Selected mutant frequency in cycle $k$, $f^*_k$")
 #Conclutsion for Two strain case
 #large frequency
 cx1=plt.axes((cxx,cxy,0.4,0.25))
-cx1.annotate('c',(-0.,0.8),xycoords='axes fraction',fontweight='bold')
-cx1.annotate(r'Success or Fail according to the target composition',(0.05,0.8),xycoords='axes fraction')
+cx1.annotate('c',(-0.05,0.8),xycoords='axes fraction',fontweight='bold')
+cx1.annotate(r'Success or Fail according to the target composition',(0.00,0.8),xycoords='axes fraction')
 
 #frame
 cx1.annotate('',xy=(1,0),xytext=(0,0),arrowprops=dict(arrowstyle='->'))

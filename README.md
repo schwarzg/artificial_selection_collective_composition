@@ -20,12 +20,12 @@ Reproduction: Binomial sampling of N0 cells based on the selected collective.
 1. `AGS_data_generator_sampling.py`
 	+ Generate trajectory of species abandance with artificial selection using sampling method.  
 	+ Output data folder: `"data/raw/AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle)`
-	+ format: array[ncycle, 1(time)+1(index)+ncomm(Initial w, Final w)+ncomm(Initial m, final m)]  
+	+ format: array[ncycle, 1(time)+1(index)+2ncomm(Initial w, Final w)+2ncomm(Initial m, final m)]  
 	+ Requirements : `gillespie/model.py, growth_alter.py, selection.py, mpi4py` package if possible  
 1. `AGS_data_generator_stochastic.py`
 	+ Generate trajectory of species abandance with artificial selection using stochastic simulation (tau-leaping algorithm).  
 	+ Output data file: `"AGS_PD_sto_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle)`
-	+ format: array[ncycle, 1(time)+1(index)+ncomm(Initial w, Final w)+ncomm(Initial m, final m)]  
+	+ format: array[ncycle, 1(time)+1(index)+2ncomm(Initial w, Final w)+2ncomm(Initial m, final m)]  
 	+ Requirements : `gillespie/model.py, gillespie/tau_leaping.py, selection.py, mpi4py` package if possible 
 1. `NS_data_generator_stochastic.py`
 	+ Generate trajectory of species abandance without artificial selection using stochastic simulation (tau-leaping algorithm).  
@@ -37,10 +37,16 @@ Reproduction: Binomial sampling of N0 cells based on the selected collective.
 	+ Output data file: `"data/one/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)`
 	+ format:[n\_fk,30(bins)] 
 	+ Requirements : `gillespie/model.py, analytic_results.py, growth_alter.py, selection.py, stats_custom_tool.py`
+1. `AGS_data_generator_three_stochastic.py`
+	+ Generate trajectory of species abandance with artificial selection using stochastic simulation (tau-leaping algorithm).  
+	+ Three genotype version
+	+ Output data file: `"data/raw/AGS_PD_sto_N0%s_mbar%s_vbar%s_r%s_s%s_mu%s_ncomm%d_mhat%s_vhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,mhat,vhat,ncycle)`
+	+ format: array[ncycle, 1(time)+1(index)+2ncomm(Initial w, Final w)+2ncomm(Initial m, final m)+2ncomm(Initial v, Final v)]  
 
 ## Main code - Data processing codes
 1. `Ensemble_average.py`
 	+ Generate ensemble-averaged data and error data at the end of simulation
+	+ Work only for two-genotype population
 	+ input data file: `"data/raw/AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle)`
 	+ output data file: `'N0%s_r%s_s%s_mu%s_g%s_diagram_fine_dist.txt'%(N0,r,s,mu,ncomm)`,`"%s_%d_%s_%s_%s_%s_%s_AGS_nens%d.cycle_v2"%(N0,mbar,r,s,mu,ncomm,rhat,nens)`
 
@@ -71,8 +77,7 @@ Reproduction: Binomial sampling of N0 cells based on the selected collective.
 	+ Input data file: `"data/one/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)`
 1. `plot_figS6.py`
 	+ Draw the schematics to get conditional extreme value distribution in three-type population, computed accessible region, and the simulation results in ternary plot
-	+ Input data file: `"data/one/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)`
-
+	+ Input data file: `"data/raw/AGS_PD_sto_N0%s_mbar%s_vbar%s_r%s_s%s_mu%s_ncomm%d_mhat%s_vhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,mhat,vhat,ncycle)`
 
 
 ## Relative Functions
