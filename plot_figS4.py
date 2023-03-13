@@ -1,5 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams["font.weight"] = "bold"
+plt.rcParams["axes.labelweight"] = "bold"
+plt.rcParams['mathtext.fontset'] = 'custom'
+plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
+plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
 import time
 import scipy.interpolate as itp
 import scipy.optimize as opt
@@ -64,7 +69,7 @@ ax.hlines(0,0,1,colors='black',ls=':')
 ax.set_xlim(xmin=0,xmax=1)
 ax.set_ylim(ymin=-0.0401,ymax=0.0601)
 ax.set_ylabel(r'$f-f^*_k$')
-ax.set_xlabel(r'Selected mutant frequency of the selected Adult in cycle $k$, $f^*_k$')
+ax.set_xlabel(r'Selected mutant frequency in cycle $k$, $f^*_k$')
 
 #legend plot
 lx=plt.axes((0.49,0.857,0.1,0.13))
@@ -81,5 +86,5 @@ lx.annotate('Th',xy=(0.07,1.9),color='C1')
 
 
 formatter='svg'
-#plt.savefig('figures/FigS4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/FigS4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()

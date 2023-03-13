@@ -7,7 +7,12 @@ from selection import score_function as sf
 import matplotlib.pyplot as plt
 import itertools as itt
 
-plt.rc('font',size=10)
+#plt.rc('font',size=10)
+plt.rcParams["font.weight"] = "bold"
+plt.rcParams["axes.labelweight"] = "bold"
+plt.rcParams['mathtext.fontset'] = 'custom'
+plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
+plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
 
 
 mu=1e-4
@@ -266,7 +271,7 @@ for i in range(ncycle):
 		else:
 			cx.plot(tsel[j],cfs,lw=0.5,c='gray',alpha=0.4)
 
-cx.hlines(rhat,0,ncycle*tcycle,linestyles=':')
+cx.hlines(rhat,0,ncycle*tcycle,linestyles=':',colors='black')
 cx.set_ylabel(r'Mutant frequency $f$')
 cx.set_xlabel(r'Time $t$')
 cx.set_ylim(ymin=0.02,ymax=0.25)
@@ -279,10 +284,10 @@ cx2=plt.axes((0.55,0.55,0.33,0.33))
 cx2.annotate('b',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
 cx2.set_ylabel(r'Mutant frequency $f$')
 cx2.set_xlabel(r'Cycle $k$')
-cx2.hlines(rhat,0,ncycle,linestyles=':')
+cx2.hlines(rhat,0,ncycle,linestyles=':',colors='black')
 k=np.arange(1,ncycle+1)
-cx2.plot(k,selected,marker='s',ms=4,c='black',label=r'$f^*$')
-cx2.plot(k,averagedGR,marker='^',ms=4,c='blue',ls='--',label=r'$\bar{f}_\mathrm{NS}$')
+cx2.plot(k,selected,marker='^',ms=4,c='black',label=r'$f^*$')
+cx2.plot(k,averagedGR,marker='s',ms=4,c='blue',ls='--',label=r'$\bar{f}_\mathrm{NS}$')
 cx2.legend(fontsize='small',handlelength=1,labelspacing=0.3)
 cx2.set_ylim(ymin=0.02,ymax=0.25)
 
@@ -317,7 +322,7 @@ for idx,rhat in enumerate(rhats):
 	#cx3.plot(T,choavg,marker='o',ms=3,lw=1,label=r'$\hat{f}=%s$'%rhat,c=cset2[idx])
 	cx3.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(idx+1))#,c=cset2[idx])
 	cx3.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='^',)#,c=cset2[idx])
-	cx3.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
+	#cx3.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
 	cx3.hlines(rhat,0,len(T),ls=':',colors='C%d'%(idx+1))
 
 #Fig2d 
@@ -333,8 +338,11 @@ for idx,rhat in enumerate(rhats):
 	choavg,chostd,_,_=np.loadtxt(folder+"_nens%d.cycle"%(nens),unpack=True)
 	T=np.arange(len(choavg))+1
 	cx4.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(idx+1))
-	cx4.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='v')#,c=cset2[idx])
-	cx4.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
+	if idx==2:
+		cx4.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='v',s=10)#,c=cset2[idx])
+	else:
+		cx4.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='v')#,c=cset2[idx])
+	#cx4.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
 	cx4.hlines(rhat,0,len(T),ls=':',colors='C%d'%(idx+1))
 	
 cx3.set_ylim(ymin=0,ymax=1)

@@ -1,6 +1,14 @@
 import numpy as np
+import matplotlib
+
 import matplotlib.pyplot as plt
+plt.rcParams["font.weight"] = "bold"
+plt.rcParams["axes.labelweight"] = "bold"
+plt.rcParams['mathtext.fontset'] = 'custom'
+plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
+plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
 import itertools
+
 
 from analytic_results import *
 #parameter prepare
@@ -14,9 +22,11 @@ ncomm=10
 tcycle=np.log(ncomm+1)/r
 
 dat=np.loadtxt("data/ens/N0%s_r%s_s%s_mu%s_g%s_ncycle%d_diagram_fig2.txt"%(N0,r,s,mu,ncomm,ncycle))
+with np.printoptions(precision=2):
+	print(dat)
 
-dat[dat<=0.05]=0
-dat[dat>0.05]=1
+dat[dat<=0.048]=0
+dat[dat>0.048]=1
 
 print(dat)
 
@@ -30,14 +40,14 @@ frange=np.arange(0.1,1.0,0.1)
 import matplotlib as mpl
 oldgrey=mpl.cm.get_cmap('Greys_r')
 newgrey=mpl.colors.ListedColormap(oldgrey(np.linspace(0.7,1,3)))
-heatmap=ax.pcolormesh(rhats,mbars,dat,cmap=newgrey,shading='flat')
+heatmap=ax.pcolormesh(rhats,mbars,dat,cmap=newgrey,shading='auto')
 heatmap.set_clim(0,0.05)
 #cbar=plt.colorbar(heatmap,extend='max')
 #cbar.set_label(r'Relative error $d$')
 ax.set_xlim(xmin=0,xmax=1)
 ax.set_ylim(ymin=0,ymax=1)
-ax.set_xlabel(r'Initial Frequency $\bar{f}_o$')
-ax.set_ylabel(r'Target Frequency $\hat{f}$')
+ax.set_xlabel(r'Initial Frequency $\mathbf{\bar{f}_o}$',weight='bold')
+ax.set_ylabel(r'Target Frequency $\mathbf{\hat{f}}$',weight='bold')
 
 fl=0.28580445	#obtained from Fig4
 fu=0.68687363
@@ -46,13 +56,13 @@ fu=0.68687363
 ax.hlines(fl,0,fl,colors='black',ls='--')
 ax.vlines(fl,0,fl,colors='black',ls='--')
 ax.hlines(fu,0,1,colors='black',ls='--')
-ax.annotate(r'$f^L$',xy=(0,fl),xytext=(0.10,fl+0.10),arrowprops=dict(arrowstyle='->'))
-ax.annotate(r'$f^L$',xy=(fl,0),xytext=(fl+0.10,0.10),arrowprops=dict(arrowstyle='->'))
-ax.annotate(r'$f^U$',xy=(0,fu),xytext=(0.10,fu-0.10),arrowprops=dict(arrowstyle='->'))
+ax.annotate(r'$\mathbf{f^L}$',weight='bold',xy=(0,fl),xytext=(0.10,fl+0.10),arrowprops=dict(arrowstyle='->'))
+ax.annotate(r'$\mathbf{f^L}$',weight='bold',xy=(fl,0),xytext=(fl+0.10,0.10),arrowprops=dict(arrowstyle='->'))
+ax.annotate(r'$\mathbf{f^U}$',weight='bold',xy=(0,fu),xytext=(0.10,fu-0.10),arrowprops=dict(arrowstyle='->'))
 
-ax.annotate(r'Success',xy=(0.03,fl-0.23))
-ax.annotate(r'Success',xy=(0.70,fu+0.10))
-ax.annotate(r'Fail',xy=(0.45,0.35))
+ax.annotate(r'Success',weight='bold',xy=(0.03,fl-0.23))
+ax.annotate(r'Success',weight='bold',xy=(0.70,fu+0.10))
+ax.annotate(r'Fail',weight='bold',xy=(0.45,0.35))
 
 #Suppoting information
 ax.scatter([0.05],[0.85],c='C1',marker='^')

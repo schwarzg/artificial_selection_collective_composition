@@ -93,6 +93,12 @@ def sigRmbar_th(c,barN,N0,g):
 
 if __name__=='__main__':
 	import matplotlib.pyplot as plt
+	plt.rcParams["font.weight"] = "bold"
+	plt.rcParams["axes.labelweight"] = "bold"
+	plt.rcParams['mathtext.fontset'] = 'custom'
+	plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
+	plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
+	'''
 	C=np.linspace(0,1,100)
 	barN=11*1000
 	plt.plot(C,sigRm_th(C,barN))
@@ -112,7 +118,7 @@ if __name__=='__main__':
 	plt.plot(T,sigcs)
 	plt.plot(T,sigcs2)
 	plt.show()
-
+	'''
 	from model import model
 	from tau_leaping import tau_leaping
 	from growth_alter import *
@@ -120,7 +126,7 @@ if __name__=='__main__':
 	
 	mu=1e-4
 	r=0.5
-	s=-3e-2
+	s=3e-2
 	N0=1000
 	mbar=100
 	ncomm=10
@@ -170,7 +176,7 @@ if __name__=='__main__':
 		ms2[e]=growth_sampling_m(np.mean(m0),np.var(m0),np.mean(w0),np.var(w0),-np.var(m0),tcycle,r,mu,s)
 	cs=get_f(ws,ms)	
 	#ax=plt.axes((0.1,0.5,0.4,0.3))
-	ax2=plt.axes((0.1,0.5,0.35,0.3))
+	ax2=plt.axes((0.1,0.5,0.30,0.3))
 	#ax.hist(w0,bins=10,density=True)
 	ax2.hist(ws,bins=30,density=True,alpha=0.4,label='tau')
 	ax2.hist(ws2,bins=30,density=True,alpha=0.4,label='samp')
@@ -183,7 +189,7 @@ if __name__=='__main__':
 	ax2.legend(frameon=False,handlelength=0.5)
 
 	#bx=plt.axes((0.1,0.1,0.4,0.3))
-	bx2=plt.axes((0.5,0.5,0.35,0.3))
+	bx2=plt.axes((0.55,0.5,0.30,0.3))
 	#bx.hist(m0,bins=10,density=True)
 	bx2.hist(ms,bins=30,density=True,alpha=0.4)		
 	bx2.hist(ms2,bins=30,density=True,alpha=0.4)		
@@ -193,11 +199,11 @@ if __name__=='__main__':
 	bx2.plot(mrange,pdfm)
 	bx2.set_xlabel(r'$m$')
 	bx2.set_ylabel(r'$P(m)$')
-	cx2=plt.axes((0.1,0.1,0.35,0.3))
-	cx2.hist(cs,density=True,alpha=0.4)
-	crange=np.linspace(barc-3*np.sqrt(sig2c),barc+3*np.sqrt(sig2c),100)	
-	print(barc,sig2c,'?=',np.mean(cs),np.var(cs))	
-	pdfc=st.norm.pdf(crange,loc=barc,scale=np.sqrt(sig2c))
-	cx2.plot(crange,pdfc)
-	#plt.savefig('compare_tausampgauss.svg',dpi=300,bbox_inches='tight',format='svg')
+	#cx2=plt.axes((0.1,0.1,0.35,0.3))
+	#cx2.hist(cs,density=True,alpha=0.4)
+	#crange=np.linspace(barc-3*np.sqrt(sig2c),barc+3*np.sqrt(sig2c),100)	
+	#print(barc,sig2c,'?=',np.mean(cs),np.var(cs))	
+	#pdfc=st.norm.pdf(crange,loc=barc,scale=np.sqrt(sig2c))
+	#cx2.plot(crange,pdfc)
+	plt.savefig('figures/FigS1.svg',dpi=300,bbox_inches='tight',format='svg')
 	plt.show()

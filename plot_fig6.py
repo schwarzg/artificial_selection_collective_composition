@@ -1,5 +1,10 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+plt.rcParams["font.weight"] = "bold"
+plt.rcParams["axes.labelweight"] = "bold"
+plt.rcParams['mathtext.fontset'] = 'custom'
+plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
+plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
 import numpy as np
 
 ############################################

@@ -1,5 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams["font.weight"] = "bold"
+plt.rcParams["axes.labelweight"] = "bold"
+plt.rcParams['mathtext.fontset'] = 'custom'
+plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
+plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
 import time
 import scipy.interpolate as itp
 import scipy.optimize as opt
@@ -69,14 +74,14 @@ ax.annotate(r'Median of selected mutant frequency distribution $\Psi(f^*_{k+1}|f
 ax.hlines(0,0,1,colors='black',ls=':')
 ax.set_xlim(xmin=0,xmax=1)
 ax.set_ylim(ymin=-0.022,ymax=0.022)
-ax.set_ylabel(r'$f^*_{k+1}-f^*_k$')
-ax.set_xlabel(r" Selected mutant frequency in cycle $k$, $f^*_k$")
+ax.set_ylabel(r'$\mathbf{f^*_{k+1}-f^*_k}$')
+ax.set_xlabel(r"Selected mutant frequency in cycle $\mathbf{k}$, $\mathbf{f^*_k}$")
 
 ax.plot(f0,sel_median-f0,c='C0',label='Simulation')
 ax.plot(f0,ext_median-f0,c='C1',label='Theory')
 ax.vlines([fl_ext,fu_ext],-0.05,0.05,colors='black',ls='--')
-ax.annotate(r'$f^L$',xy=(fl_ext,-0.0215),xytext=(fl_ext-0.1,-0.019),arrowprops=dict(arrowstyle='->'))
-ax.annotate(r'$f^U$',xy=(fu_ext,-0.022),xytext=(fu_ext+0.06,-0.019),arrowprops=dict(arrowstyle='->'))
+ax.annotate(r'$\mathbf{f^L}$',xy=(fl_ext,-0.0215),xytext=(fl_ext-0.1,-0.019),arrowprops=dict(arrowstyle='->'))
+ax.annotate(r'$\mathbf{f^U}$',xy=(fu_ext,-0.022),xytext=(fu_ext+0.06,-0.019),arrowprops=dict(arrowstyle='->'))
 
 #distribution box plot
 bx=plt.axes((0.1,0.38,0.5,0.35))
@@ -89,7 +94,7 @@ idx1=9
 idx2=49
 idx3=89
 bx.hlines(0,0,1,colors='black',ls=':')
-c=['C0','C1','C2']
+c=['C9','C4','C2']
 boxes=bx.boxplot([sim_raw[idx1]-f0[idx1],sel_raw[idx1]-np.mean(sim_raw[idx1]),sel_raw[idx1]-f0[idx1]],positions=[0.04,0.1,0.16],widths=0.05,sym='')
 for box,med,col in zip(boxes['boxes'],boxes['medians'],c):
 	box.set_color(col)
@@ -109,10 +114,10 @@ bx=statistical_significant(bx,sim_raw[idx1]-f0[idx1],sim_raw[idx2]-f0[idx2],[f0[
 bx=statistical_significant(bx,sel_raw[idx1]-np.mean(sim_raw[idx1]),sel_raw[idx2]-np.mean(sim_raw[idx2]),[f0[idx1]+0.01,f0[idx2]+0.01],upside=False,offset=0.1)
 
 
-bx.annotate('Intra-collective',(0.03,0.80),xycoords='axes fraction',rotation=15,c=c[0])
-bx.annotate('Inter-collective',(0.08,0.70),xycoords='axes fraction',rotation=15,c=c[1])
-bx.annotate('Total',(0.14,0.61),xycoords='axes fraction',rotation=15,c=c[2])
-bx.set_xlabel(r" Selected mutant frequency in cycle $k$, $f^*_k$")
+bx.annotate('Intra-collective',(0.03,0.78),xycoords='axes fraction',rotation=15,c=c[0])
+bx.annotate('Inter-collective',(0.07,0.68),xycoords='axes fraction',rotation=15,c=c[1])
+bx.annotate('Total',(0.14,0.60),xycoords='axes fraction',rotation=15,c=c[2])
+bx.set_xlabel(r" Selected mutant frequency in cycle $\mathbf{k}$, $\mathbf{f^*_k}$")
 
 
 #Conclutsion for Two strain case
@@ -124,8 +129,8 @@ cx1.annotate(r'Success or Fail according to the target composition',(0.00,0.8),x
 #frame
 cx1.annotate('',xy=(1,0),xytext=(0,0),arrowprops=dict(arrowstyle='->'))
 cx1.fill_between([0,1],0.02,0,color='green',alpha=0.3)
-cx1.annotate(r'$0$',xy=(0,-0.02))
-cx1.annotate(r'$1$',xy=(0.95,-0.02))
+cx1.annotate(r'$\mathbf{0}$',xy=(0,-0.02))
+cx1.annotate(r'$\mathbf{1}$',xy=(0.95,-0.02))
 
 cx1.set_ylim(ymin=-0.05,ymax=0.05)
 
@@ -146,8 +151,8 @@ cx1.annotate('',xy=(ini3,h3),xytext=(ini2,h2),arrowprops=dict(arrowstyle='->'))
 cx1.annotate('',xy=(tgt,h3),xytext=(ini3,h3),arrowprops=dict(arrowstyle='->'))
 
 cx1.vlines([0.3,0.7],0.005,-0.005,colors='black')
-cx1.annotate(r'$f^L$',xy=(0.28,-0.02))
-cx1.annotate(r'$f^U$',xy=(0.68,-0.02))
+cx1.annotate(r'$\mathbf{f^L}$',xy=(0.28,-0.02))
+cx1.annotate(r'$\mathbf{f^U}$',xy=(0.68,-0.02))
 
 cx1.set_xlim(xmin=0,xmax=1)
 
@@ -159,8 +164,8 @@ cx2=plt.axes((cxx,cxy-0.15,0.4,0.25))
 #frame
 cx2.annotate('',xy=(1,0),xytext=(0,0),arrowprops=dict(arrowstyle='->'))
 cx2.fill_between([0,1],0.02,0,color='red',alpha=0.3)
-cx2.annotate(r'$0$',xy=(0,-0.02))
-cx2.annotate(r'$1$',xy=(0.95,-0.02))
+cx2.annotate(r'$\mathbf{0}$',xy=(0,-0.02))
+cx2.annotate(r'$\mathbf{1}$',xy=(0.95,-0.02))
 
 cx2.set_ylim(ymin=-0.05,ymax=0.05)
 
@@ -181,8 +186,8 @@ cx2.annotate('',xy=(0.7,h2),xytext=(ini2,h2),arrowprops=dict(arrowstyle='->'))
 cx2.annotate('',xy=(0.7,h3),xytext=(ini3,h3),arrowprops=dict(arrowstyle='->'))
 
 cx2.vlines([0.3,0.7],0.005,-0.005,colors='black')
-cx2.annotate(r'$f^L$',xy=(0.28,-0.02))
-cx2.annotate(r'$f^U$',xy=(0.68,-0.02))
+cx2.annotate(r'$\mathbf{f^L}$',xy=(0.28,-0.02))
+cx2.annotate(r'$\mathbf{f^U}$',xy=(0.68,-0.02))
 
 cx2.set_xlim(xmin=0,xmax=1)
 cx2.axis('off')
@@ -194,8 +199,8 @@ cx3=plt.axes((cxx,cxy-0.3,0.4,0.25))
 cx3.annotate('',xy=(1,0),xytext=(0,0),arrowprops=dict(arrowstyle='->'))
 cx3.fill_between([0,0.3],0.025,0,color='green',alpha=0.3, label='success')
 cx3.fill_between([0.3,1],0.025,0,color='red',alpha=0.3,label='fail')
-cx3.annotate(r'$0$',xy=(0,-0.02))
-cx3.annotate(r'$1$',xy=(0.95,-0.02))
+cx3.annotate(r'$\mathbf{0}$',xy=(0,-0.02))
+cx3.annotate(r'$\mathbf{1}$',xy=(0.95,-0.02))
 cx3.annotate('Mutant frequency',xy=(0.5,0.2),xycoords='axes fraction',ha='center',va='top')
 
 cx3.set_ylim(ymin=-0.05,ymax=0.05)
@@ -218,8 +223,8 @@ cx3.annotate('',xy=(0.7,h2),xytext=(ini2,h2),arrowprops=dict(arrowstyle='->'))
 cx3.annotate('',xy=(0.7,h3),xytext=(ini3,h3),arrowprops=dict(arrowstyle='->'))
 
 cx3.vlines([0.3,0.7],0.005,-0.005,colors='black')
-cx3.annotate(r'$f^L$',xy=(0.28,-0.02))
-cx3.annotate(r'$f^U$',xy=(0.68,-0.02))
+cx3.annotate(r'$\mathbf{f^L}$',xy=(0.28,-0.02))
+cx3.annotate(r'$\mathbf{f^U}$',xy=(0.68,-0.02))
 
 cx3.legend(frameon=False,loc=(1.1,0.5))
 cx3.set_xlim(xmin=0,xmax=1)
