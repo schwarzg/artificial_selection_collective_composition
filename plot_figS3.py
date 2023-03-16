@@ -1,10 +1,12 @@
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 plt.rcParams["font.weight"] = "bold"
 plt.rcParams["axes.labelweight"] = "bold"
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
 plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
+plt.rcParams['axes.prop_cycle']=mpl.cycler(color=['#1f77b4', '#6600ff', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
 import itertools
 
 from analytic_results import *
@@ -25,9 +27,11 @@ mbars=np.array([0,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800
 
 ax=plt.axes((0.1,0.1,0.5,0.5))
 frange=np.arange(0.1,1.0,0.1)
-heatmap=ax.pcolormesh(rhats,mbars,dat,cmap='Blues_r',shading='flat')
-heatmap.set_clim(0,0.05)
-cbar=plt.colorbar(heatmap,extend='max')
+oldgrey=mpl.cm.get_cmap('Greys_r')
+newgrey=mpl.colors.ListedColormap(oldgrey(np.linspace(0.5,1,20)))
+heatmap=ax.pcolormesh(rhats,mbars,dat,cmap=newgrey,shading='flat')
+heatmap.set_clim(0,0.2)
+cbar=plt.colorbar(heatmap,extend='max',ticks=[0,0.05,0.1,0.15])
 cbar.set_label(r'Relative error $d$')
 ax.set_xlim(xmin=0,xmax=1)
 ax.set_ylim(ymin=0,ymax=1)

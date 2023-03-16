@@ -27,7 +27,7 @@ barN02=[]
 sigw2=[]
 sigm2=[]
 sigf2=[]
-N0s= np.arange(500,5000,100)
+N0s= np.arange(500,5000,100)[::-1]
 for N0 in N0s:
 	m0=int(N0*0.3)#np.clip(np.random.poisson(200,size=nens),0,1000)
 	w0=N0-m0
@@ -43,9 +43,9 @@ for N0 in N0s:
 	sigm2.append(sig2m)
 	sigf2.append(sig2c)
 
-ax=plt.axes((0.1,0.1,0.3,0.3))
-bx=plt.axes((0.53,0.1,0.3,0.3))
-cx=plt.axes((0.96,0.1,0.3,0.3))
+#ax=plt.axes((0.1,0.1,0.3,0.3))
+#bx=plt.axes((0.53,0.1,0.3,0.3))
+'''
 ax.plot(N0s,sigw2,label=r'$\sigma_w^2(\tau)$')	
 ax.plot(N0s,sigm2,label=r'$\sigma_m^2(\tau)$')
 ax.plot([1500,3000],[45000,90000],ls=':',c='black')
@@ -66,15 +66,17 @@ bx.set_xlabel(r'Newborn collective size $N_0$')
 bx.set_ylabel(r'$\overline{N}(\tau)^2$')	
 bx.set_xticks([500,1000,5000])
 bx.set_xticklabels([500,1000,5000])
-cx.plot(N0s,sigf2)	
-cx.plot([1500,3000],[0.00016,0.00008],ls=':',c='black')
-cx.annotate(r'$\sim N_0^{-1}$',(2000,0.00012))
+'''
+cx=plt.axes((0.96,0.1,0.3,0.3))
+cx.plot(1/N0s,sigf2)	
+cx.plot([1/500,1/1000],[0.00016,0.00008],ls=':',c='black')
+cx.annotate(r'$\sim 1/N_0$',(1/1000,0.00012))
 cx.set_xscale('log')
 cx.set_yscale('log')
-cx.set_xlabel(r'Newborn collective size $N_0$')	
+cx.set_xlabel(r'Newborn collective size $1/N_0$')	
 cx.set_ylabel(r'$\sigma_f^2(\tau)$')	
-cx.set_xticks([500,1000,5000])
-cx.set_xticklabels([500,1000,5000])
+cx.set_xticks([1/1000,1/5000])
+cx.set_xticklabels(['1/1000','1/5000'])
 formatter='svg'
-plt.savefig('figures/FigSn.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/FigS5.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()

@@ -4,6 +4,7 @@ from tau_leaping import tau_leaping
 from selection import select
 from selection import community_function as cf
 from selection import score_function as sf
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import itertools as itt
 
@@ -13,7 +14,7 @@ plt.rcParams["axes.labelweight"] = "bold"
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
 plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
-
+plt.rcParams['axes.prop_cycle']=mpl.cycler(color=['#1f77b4', '#6600ff', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
 
 mu=1e-4
 r=0.5
@@ -357,6 +358,6 @@ cx4.set_ylim(ymin=0,ymax=1)
 cx4.set_xlim(xmin=1)
 cx4.set_xscale('log')
 formatter='svg' #or 'png'
-plt.savefig('figures/Fig2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/Fig2_v2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 

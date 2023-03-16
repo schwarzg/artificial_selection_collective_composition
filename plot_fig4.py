@@ -57,6 +57,24 @@ extmean_interp=itp.interp1d(f0,ext_median-f0)
 fl_ext=opt.root(extmean_interp,0.3).x
 fu_ext=opt.root(extmean_interp,0.8).x
 
+import scipy as sc
+import scipy.optimize as opt
+import scipy.special as spc
+import scipy.stats as st
+
+#define D function
+def get_Dfunc(zeta,r,s,mu,ncomm,N0):
+	varf0=zeta*(1-zeta)/N0
+	barc=barc_th_v2(zeta,N0,tcycle,r,mu,s)
+	sig2c=sig2c_th_v2(zeta,varf0,N0,tcycle,r,mu,s)
+	unitnorm=st.norm()
+	D=barc+np.sqrt(sig2c)*unitnorm.ppf(float(1/ncomm))-zeta
+	return D
+
+zetas=np.arange(0,1,0.01)
+Ds=get_Dfunc(zetas,r,s,mu,ncomm,N0)
+#plt.plot(zetas,Ds)
+#plt.show()
 
 #plot position assign
 axx=0.1
@@ -79,6 +97,7 @@ ax.set_xlabel(r"Selected mutant frequency in cycle $\mathbf{k}$, $\mathbf{f^*_k}
 
 ax.plot(f0,sel_median-f0,c='C0',label='Simulation')
 ax.plot(f0,ext_median-f0,c='C1',label='Theory')
+#ax.plot(zetas,Ds)
 ax.vlines([fl_ext,fu_ext],-0.05,0.05,colors='black',ls='--')
 ax.annotate(r'$\mathbf{f^L}$',xy=(fl_ext,-0.0215),xytext=(fl_ext-0.1,-0.019),arrowprops=dict(arrowstyle='->'))
 ax.annotate(r'$\mathbf{f^U}$',xy=(fu_ext,-0.022),xytext=(fu_ext+0.06,-0.019),arrowprops=dict(arrowstyle='->'))
@@ -94,7 +113,7 @@ idx1=9
 idx2=49
 idx3=89
 bx.hlines(0,0,1,colors='black',ls=':')
-c=['C9','C4','C2']
+c=['#17becf','#9467bd','black']
 boxes=bx.boxplot([sim_raw[idx1]-f0[idx1],sel_raw[idx1]-np.mean(sim_raw[idx1]),sel_raw[idx1]-f0[idx1]],positions=[0.04,0.1,0.16],widths=0.05,sym='')
 for box,med,col in zip(boxes['boxes'],boxes['medians'],c):
 	box.set_color(col)
@@ -117,6 +136,8 @@ bx=statistical_significant(bx,sel_raw[idx1]-np.mean(sim_raw[idx1]),sel_raw[idx2]
 bx.annotate('Intra-collective',(0.03,0.78),xycoords='axes fraction',rotation=15,c=c[0])
 bx.annotate('Inter-collective',(0.07,0.68),xycoords='axes fraction',rotation=15,c=c[1])
 bx.annotate('Total',(0.14,0.60),xycoords='axes fraction',rotation=15,c=c[2])
+bx.annotate(r'$f_{k+1,\tau}-f^*_{k}$',(0.03,0.78),xycoords='axes fraction',rotation=15,c=c[0])
+bx.annotate(r'$f^*_{k+1}-\overline{f_{k+1,\tau}}$',(0.03,0.78),xycoords='axes fraction',rotation=15,c=c[1])
 bx.set_xlabel(r" Selected mutant frequency in cycle $\mathbf{k}$, $\mathbf{f^*_k}$")
 
 
