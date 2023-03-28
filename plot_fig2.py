@@ -18,11 +18,11 @@ plt.rcParams['axes.prop_cycle']=mpl.cycler(color=['#1f77b4', '#6600ff', '#2ca02c
 
 mu=1e-4
 r=0.5
-s=3.5e-2
+s=3.0e-2
 N0=1000
-mbar=50
+mbar=200
 ncomm=10
-rhat=0.15
+rhat=0.10
 
 tcycle=np.log(ncomm+1)/r
 
@@ -43,8 +43,8 @@ cset=[
 '#4575b4',
 '#313695'
 ]
+cx=plt.axes((0.10,0.55,0.33,0.33))
 
-'''
 ################################
 #data generate version
 ################################
@@ -75,8 +75,6 @@ minGR=np.array([])
 maxGR=np.array([])
 tselect=[]
 
-cx=plt.axes((0.10,0.55,0.33,0.33))
-cx.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
 for i in range(ncycle):
 	print("Cycle %d"%i)
 	tsel=[] #group,time
@@ -145,14 +143,14 @@ for i in range(ncycle):
 	tselect.append((i+1)*tcycle)
 
 	#save data	
-	fts=open('data/fig2/fig2_tsel_%d.dat'%i,'a')
-	fws=open('data/fig2/fig2_wsel_%d.dat'%i,'a')
-	fms=open('data/fig2/fig2_msel_%d.dat'%i,'a')
-	fsi=open('data/fig2/fig2_selind_%d.dat'%i,'a')
+	fts=open('data/figS/fig2_tsel_%d.dat'%i,'a')
+	fws=open('data/figS/fig2_wsel_%d.dat'%i,'a')
+	fms=open('data/figS/fig2_msel_%d.dat'%i,'a')
+	fsi=open('data/figS/fig2_selind_%d.dat'%i,'a')
 	np.savetxt(fsi,selind)
-	ftn=open('data/fig2/fig2_tnat_%d.dat'%i,'a')
-	fwn=open('data/fig2/fig2_wnat_%d.dat'%i,'a')
-	fmn=open('data/fig2/fig2_mnat_%d.dat'%i,'a')
+	ftn=open('data/figS/fig2_tnat_%d.dat'%i,'a')
+	fwn=open('data/figS/fig2_wnat_%d.dat'%i,'a')
+	fmn=open('data/figS/fig2_mnat_%d.dat'%i,'a')
 	for j in range(ncomm):
 		np.savetxt(fts,tsel[j],newline=' ')
 		fts.write('\n')
@@ -189,25 +187,6 @@ for i in range(ncycle):
 	m0sel=np.sort(m0sel)
 	w0sel=N0-m0sel
 
-cx.hlines(rhat,0,ncycle*tcycle,linestyles=':')
-cx.set_ylabel(r'Mutant frequency $f$')
-cx.set_xlabel(r'Time $t$')
-cx.set_ylim(ymin=0.02,ymax=0.25)
-cx.annotate(r'$\tau\approx4.8$',xy=(8*tcycle,0.06))
-cx.annotate('',xy=(9*tcycle,0.10),xytext=(10*tcycle,0.10),arrowprops=dict(arrowstyle='->',mutation_scale=10))
-cx.annotate('',xy=(8*tcycle,0.10),xytext=(7*tcycle-0.01,0.10),arrowprops=dict(arrowstyle='->',mutation_scale=10))
-cx.vlines([8*tcycle,9*tcycle],0.09,0.11,linestyles='-',colors='black')
-
-cx2=plt.axes((0.55,0.55,0.33,0.33))
-cx2.annotate('b',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
-cx2.set_ylabel(r'Mutant frequency $f$')
-cx2.set_xlabel(r'Cycle $k$')
-cx2.hlines(rhat,0,ncycle,linestyles=':')
-k=np.arange(1,ncycle+1)
-cx2.plot(k,selected,marker='s',ms=4,c='black',label=r'$f^*$')
-cx2.plot(k,averagedGR,marker='^',ms=4,c='blue',ls='--',label=r'$\bar{f}_\mathrm{NS}$')
-cx2.legend(fontsize='small',handlelength=1,labelspacing=0.3)
-cx2.set_ylim(ymin=0.02,ymax=0.25)
 
 '''
 ################################
@@ -271,7 +250,9 @@ for i in range(ncycle):
 			cx.plot(tsel[j],cfs,lw=1,c='black')
 		else:
 			cx.plot(tsel[j],cfs,lw=0.5,c='gray',alpha=0.4)
+'''
 
+cx.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
 cx.hlines(rhat,0,ncycle*tcycle,linestyles=':',colors='black')
 cx.set_ylabel(r'Mutant frequency $f$')
 cx.set_xlabel(r'Time $t$')
@@ -292,7 +273,7 @@ cx2.plot(k,averagedGR,marker='s',ms=4,c='blue',ls='--',label=r'$\bar{f}_\mathrm{
 cx2.legend(fontsize='small',handlelength=1,labelspacing=0.3)
 cx2.set_ylim(ymin=0.02,ymax=0.25)
 
-
+'''
 #Fig2c... suc - fail - suc 구간 f0=0.1, ftg=0.2,0.5,0.8
 #Fig2d... different initial d
 
@@ -357,6 +338,7 @@ cx4.set_ylabel(r'Selected Freq. $\langle f^*\rangle$')
 cx4.set_ylim(ymin=0,ymax=1)
 cx4.set_xlim(xmin=1)
 cx4.set_xscale('log')
+'''
 formatter='svg' #or 'png'
 plt.savefig('figures/Fig2_v2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
