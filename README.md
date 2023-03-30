@@ -2,7 +2,7 @@ Artificial selection of microbial collectives with certian composition
 ===
 ## Artificial selection in simple population dynamics model 
 
-Ref: in preparation  
+Ref: https://doi.org/10.1101/2023.03.07.531234 
 This repository simulate artificial selection of microbial collectives with certain composition.  
 Two-type population dynamics is assumed.  
 
