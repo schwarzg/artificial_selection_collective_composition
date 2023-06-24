@@ -22,8 +22,8 @@ def select(w,m,r=0.5,s=5e-2,rhat=0.05):
 def select_toptier(nmax,w,m,r,s,rhat):
 	comms=community_function(w,m,r=r,s=s)
 	score=score_function(comms,rhat)
-	smax=np.argsort(score)[:nmax]#np.where(score==np.max(score))[0][0]
-
+	smax=np.argsort(score)[-nmax:]#np.where(score==np.max(score))[0][0]
+	
 	return smax	
 
 if __name__=='__main__':

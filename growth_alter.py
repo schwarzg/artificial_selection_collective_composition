@@ -13,6 +13,8 @@ def growth_sampling_m(m0,sig2m0,w0,sig2w0,covwm0,t,r,mu,s,nsample=1):
 		return rv.rvs(size=nsmaple).astype(int)
 
 def growth_sampling_w(w0,sig2w0,t,r,mu,s,nsample=1):
+	if w0==0:
+		return np.zeros(nsample)
 	wt=barw_th(w0,t,r,mu)
 	sig2wt=sig2w_th(w0,sig2w0,t,r,mu)
 	rv=st.truncnorm(-wt/np.sqrt(sig2wt),np.inf,loc=wt,scale=np.sqrt(sig2wt))

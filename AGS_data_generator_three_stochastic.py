@@ -89,6 +89,12 @@ nensemble=30
 ncycle=30
 tcycle=np.log(ncomm+1)/r
 
+if len(sys.argv)!=1:
+	m0=int(sys.argv[1])	
+	v0=int(sys.argv[2])	
+	mhat=float(sys.argv[3])
+	vhat=float(sys.argv[4])
+
 descriptor="AGS_PD_sto_N0%s_mbar%s_vbar%s_r%s_s%s_mu%s_ncomm%d_mhat%s_vhat%s_ncycle%d"%(N0,m0,v0,r,s,mu,ncomm,mhat,vhat,ncycle)
 folder="data/raw/"+descriptor
 

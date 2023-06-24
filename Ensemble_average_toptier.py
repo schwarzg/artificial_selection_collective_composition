@@ -15,15 +15,16 @@ nrep=int(ncomm/nsel)
 
 #AGS plot
 dats=np.array([])	#data for saving 
-rhats=[0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95]
-mbars=[0,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950]
-
+rhats=[0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95]
+mbars=[0,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900]
+rhats=[0.1]
+mbars=[150]
 dats=[]
 
-nensemble=3
+nensemble=20#300
 c=0
-#for (rhat,mbar) in itt.product(rhats,mbars):
-for (rhat,mbar) in titt.product([0.1],[50]):
+for (rhat,mbar) in itt.product(rhats,mbars):
+#for (rhat,mbar) in titt.product([0.1],[50]):
 	
 	#descriptor="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle) 
 	descriptor="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_nsel%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,nsel,rhat,ncycle) 
@@ -49,7 +50,7 @@ for (rhat,mbar) in titt.product([0.1],[50]):
 	
 	#Artificial group selection with the selected
 	c_cho=cf(w_cho,m_cho)
-	c_cho=np.mean(c_cho,axis=-1) #averaged of five
+	c_cho=np.mean(c_cho,axis=-1) #minimum of five
 	choavg=np.mean(c_cho,axis=0)	
 	chostd=np.std(c_cho,axis=0)	
 	cho75=np.quantile(c_cho,0.75,axis=0)
@@ -63,4 +64,4 @@ for (rhat,mbar) in titt.product([0.1],[50]):
 
 #dats=np.array(dats).reshape((len(rhats),len(mbars)))
 print(dats)
-np.savetxt("data/ens/N0%s_r%s_s%s_mu%s_g%s_ncycle%d_diagram_fig2.txt"%(N0,r,s,mu,ncomm,ncycle),dats)
+#np.savetxt("data/ens/N0%s_r%s_s%s_mu%s_g%s_ncycle%d_diagram_fig2.txt"%(N0,r,s,mu,ncomm,ncycle),dats)

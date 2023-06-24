@@ -2,6 +2,7 @@ import numpy as np
 from growth_alter import *
 from selection import select_toptier
 from selection import community_function as cf
+from tqdm import tqdm
 import os,sys
 
 #import matplotlib.pyplot as plt
@@ -14,7 +15,7 @@ N0=1000
 mbar=50
 ncomm=100
 rhat=0.1
-nensemble=3
+nensemble=20
 ncycle=1000
 tcycle=np.log(ncomm+1)/r
 nsel=5
@@ -56,7 +57,7 @@ if rank==0:
 		os.mkdir(folder)
 #comm.barrier()
 
-for e in range(rank,nensemble,nproc):
+for e in tqdm(range(rank,nensemble,nproc)):
 	#prepare initial state
 	w0sel=np.copy(w0sel_ini)
 	m0sel=np.copy(m0sel_ini)
@@ -82,7 +83,8 @@ for e in range(rank,nensemble,nproc):
 			#store grown number for selection
 			lastw[j]=growth_sampling_w(w0sel[j],0,tcycle,r,mu,s)
 			lastm[j]=growth_sampling_m(m0sel[j],0,w0sel[j],0,0,tcycle,r,mu,s)
-	
+
+		#print(lastw,lastm)	
 		#Selection phase
 		w_selected=np.append(w_selected,lastw)
 		m_selected=np.append(m_selected,lastm)
@@ -93,8 +95,10 @@ for e in range(rank,nensemble,nproc):
 		t_selected=np.append(t_selected,(i+1)*tcycle)	
 	
 		#reproduction phase
-		for i,ind in enumerate(ind_sel):	
+		for i,ind in enumerate(ind_sel):
+			#print(w_sel[i],m_sel[i],cf(w_sel[i],m_sel[i]))	
 			m0sel[nrep*i:nrep*(i+1)]=np.random.binomial(N0,cf(w_sel[i],m_sel[i]),size=nrep)
+			#print(m0sel[nrep*i:nrep*(i+1)])
 		m0sel=np.sort(m0sel)
 		w0sel=N0-m0sel
 	

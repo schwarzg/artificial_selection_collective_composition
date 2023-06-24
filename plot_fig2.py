@@ -21,7 +21,7 @@ r=0.5
 s=3.0e-2
 N0=1000
 mbar=200
-ncomm=10
+ncomm=100
 rhat=0.10
 
 tcycle=np.log(ncomm+1)/r
@@ -340,6 +340,6 @@ cx4.set_xlim(xmin=1)
 cx4.set_xscale('log')
 '''
 formatter='svg' #or 'png'
-plt.savefig('figures/Fig2_v2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+#plt.savefig('figures/Fig2_v2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 

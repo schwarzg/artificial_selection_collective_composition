@@ -68,7 +68,9 @@ def get_Dfunc(zeta,r,s,mu,ncomm,N0):
 	barc=barc_th_v2(zeta,N0,tcycle,r,mu,s)
 	sig2c=sig2c_th_v2(zeta,varf0,N0,tcycle,r,mu,s)
 	unitnorm=st.norm()
-	D=barc+np.sqrt(sig2c)*unitnorm.ppf(float(1/ncomm))-zeta
+	phi1=unitnorm.ppf(float(1/ncomm))
+	phi2=unitnorm.ppf(float(1/(ncomm*np.exp(1))))
+	D=barc+np.sqrt(sig2c)*(phi1-np.log(np.log(2))*(phi2-phi1))-zeta
 	return D
 
 zetas=np.arange(0,1,0.01)
@@ -86,23 +88,24 @@ cxy=0.0
 
 
 ##median plot
-ax=plt.axes((axx,axy,0.5,0.35))
-ax.annotate('a',(-0.25,1.19),xycoords='axes fraction',fontweight='bold')
-ax.annotate(r'Median of selected mutant frequency distribution $\Psi(f^*_{k+1}|f_k^*)$'+'\n'+r'with shift $-f^*_k$',(-0.20,1.07),xycoords='axes fraction')
+ax=plt.axes((axx,axy,0.5,0.30))
+#ax.annotate('a',(-0.25,1.19),xycoords='axes fraction',fontweight='bold')
+#ax.annotate(r'Median of selected mutant frequency distribution $\Psi(f^*_{k+1}|f_k^*)$'+'\n'+r'with shift $-f^*_k$',(-0.20,1.07),xycoords='axes fraction')
 ax.hlines(0,0,1,colors='black',ls=':')
 ax.set_xlim(xmin=0,xmax=1)
-ax.set_ylim(ymin=-0.022,ymax=0.022)
+ax.set_ylim(ymin=-0.018,ymax=0.018)
 ax.set_ylabel(r'$\mathbf{f^*_{k+1}-f^*_k}$')
 ax.set_xlabel(r"Selected mutant frequency in cycle $\mathbf{k}$, $\mathbf{f^*_k}$")
 
 ax.plot(f0,sel_median-f0,c='C0',label='Simulation')
 ax.plot(f0,ext_median-f0,c='C1',label='Theory')
-#ax.plot(zetas,Ds)
+ax.plot(zetas,Ds,label=r'$D(\zeta)$',c='C2')
+ax.legend(frameon=False)
 ax.vlines([fl_ext,fu_ext],-0.05,0.05,colors='black',ls='--')
 ax.annotate(r'$\mathbf{f^L}$',xy=(fl_ext,-0.0215),xytext=(fl_ext-0.1,-0.019),arrowprops=dict(arrowstyle='->'))
 ax.annotate(r'$\mathbf{f^U}$',xy=(fu_ext,-0.022),xytext=(fu_ext+0.06,-0.019),arrowprops=dict(arrowstyle='->'))
 
-#distribution box plot
+'''#distribution box plot
 bx=plt.axes((0.1,0.38,0.5,0.35))
 bx.annotate('b',(-0.25,1.07),xycoords='axes fraction',fontweight='bold')
 bx.annotate(r'Distribution of frequency changes in each steps',(-0.20,1.07),xycoords='axes fraction')
@@ -250,7 +253,7 @@ cx3.annotate(r'$\mathbf{f^U}$',xy=(0.68,-0.02))
 cx3.legend(frameon=False,loc=(1.1,0.5))
 cx3.set_xlim(xmin=0,xmax=1)
 cx3.axis('off')
-
+'''
 formatter='svg'
-plt.savefig('figures/Fig4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/Fig4_D.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
