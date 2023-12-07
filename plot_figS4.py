@@ -263,6 +263,6 @@ cx2.legend(fontsize='small',handlelength=1,labelspacing=0.3)
 cx2.set_ylim(ymin=0.05)
 
 formatter='svg' #or 'png'
-plt.savefig('figures/FigS4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+#plt.savefig('figures/FigS4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 

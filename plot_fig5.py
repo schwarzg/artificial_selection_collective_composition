@@ -1,15 +1,85 @@
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+import mpltern
+
+
+###############################3
+# Draw three strain system
+###############################
+
+
 plt.rcParams["font.weight"] = "bold"
 plt.rcParams["axes.labelweight"] = "bold"
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
 plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
-import time
-import scipy.interpolate as itp
-import scipy.optimize as opt
-import sys
-sys.setrecursionlimit(10000)
+plt.rcParams['font.family'] = 'Arial'
+import numpy as np
+
+############################################
+# Schematic - maturation of three strain
+############################################
+
+cc=['#75140c','#0044aa','#a004bf']
+
+#location fix
+mxx=0.1
+mxy=0.45-0.28-0.05
+mx=plt.axes((mxx,mxy,0.45,0.45))
+mx.annotate('a',xy=(0.,1.075),weight='bold',xycoords='axes fraction')
+mx.annotate(' Three-strain system',xy=(0.05,1.075),xycoords='axes fraction')
+def draw_birth(ax,x,y,ut='',dt='',c='r',scale=1,length=3):
+    rad=0.4
+    ax.add_patch(mpl.patches.Circle((x,y), radius=rad, color=c,ec='black'))
+    ax.annotate('',xy=(x+0.5+length,y),xytext=(x+0.5,y),arrowprops=dict(arrowstyle='->'))
+    ax.add_patch(mpl.patches.Circle((x+length+1,y), radius=rad, color=c,ec='black'))
+    ax.add_patch(mpl.patches.Circle((x+length+2,y), radius=rad, color=c,ec='black'))
+    ax.annotate(ut,xy=(x+2,y+0.1),ha='center',va='bottom')
+    ax.annotate(dt,xy=(x+2,y-0.1),ha='center',va='top')
+    return ax
+
+def draw_mutation(ax,x,y,cl='r',cr='b',scale=1):
+    rad=0.4
+    ax.add_patch(mpl.patches.Circle((x,y), radius=rad, color=cl,ec='black'))
+    ax.annotate('',xy=(x+3.5,y),xytext=(x+0.5,y),arrowprops=dict(arrowstyle='->'))
+    ax.add_patch(mpl.patches.Circle((x+4,y), radius=rad, color=cr,ec='black'))
+    ax.annotate('',xy=(x+2,y+0.1),ha='center',va='bottom')
+    return ax
+
+rx1=0
+ry1=0
+
+mx.annotate(r'Reactions',xy=(rx1,ry1+2.),ha='left',va='center')
+mx.annotate(r'Rates',xy=(rx1+6.5,ry1+2.),ha='left',va='center')
+
+
+draw_birth(mx,rx1,ry1,c=cc[0],length=3)
+mx.annotate(r'$r$',xy=(rx1+6.5,ry1),ha='left',va='center')
+
+
+ry2=-2.5
+draw_birth(mx,rx1,ry2,c=cc[1],length=3)
+mx.annotate(r'$r+s$',xy=(rx1+6.5,ry2),ha='left',va='center')
+
+ry3=-5
+draw_birth(mx,rx1,ry3,c=cc[2],length=3)
+mx.annotate(r'$r+2s$',xy=(rx1+6.5,ry3),ha='left',va='center')
+
+rx2=7
+ry4=ry3-3.0
+draw_mutation(mx,rx1,ry4,cl=cc[0],cr=cc[1])
+mx.annotate(r'$\mu$',xy=(rx1+6.5,ry4),ha='left',va='center')
+
+ry5=ry3-5.5
+draw_mutation(mx,rx1,ry5,cl=cc[1],cr=cc[2])
+mx.annotate(r'$\mu$',xy=(rx1+6.5,ry5),ha='left',va='center')
+
+mx.axis('scaled')
+mx.tick_params(left=False,bottom=False,labelleft=False,labelbottom=False)
+mx.set_ylim(ymin=-12.5,ymax=3)
+mx.set_xlim(xmin=-2,xmax=10.0)
+
 #parameter prepare
 mu=1e-4
 r=0.5
@@ -17,183 +87,226 @@ s=3e-2
 N0=1000
 mbar=100
 ncomm=10
+g=ncomm
 rhat=0
-nens=100
-ncycle=10
+nensemble=30
+ncycle=30
 tcycle=np.log(ncomm+1)/r
 
+#######################
+# Define accessible region
+#######################
 
-from one_step_functions import *
-from selection import select
-from selection import community_function as cf
-from selection import score_function as sf
-from reproduction import hypergeometric_reproduce
-from scipy.signal import savgol_filter
+data=np.loadtxt("N0%d_r%s_s%s_mu%s_ext_means.dat"%(N0,r,s,mu))
+scale=1
+fms=data[:,0]
+fvs=data[:,1]
+fws=1-fms-fvs
+v1x=data[:,2]-data[:,0]
+v1y=data[:,3]-data[:,1]
+v2x=data[:,4]-data[:,0]
+v2y=data[:,5]-data[:,1]
 
-#Start from give initial state
-Nf=(ncomm+2)*N0		#Nf is set to be (ncomm+1)*N0
-fbins=np.linspace(0,1,100)
+mask=fws>-1e-8
+fws=fws[mask]
+fms=fms[mask]
+fvs=fvs[mask]
+v1x=v1x[mask]
+v2x=v2x[mask]
+v1y=v1y[mask]
+v2y=v2y[mask]
+dscore=np.zeros(len(v1x))
+for i,fm in enumerate(fms):
+	midx=int(fm)
+	vidx=int(fvs[i])
+	#dscore[(midx,vidx)]=score[i]
+	if np.sign(v1x[i])*np.sign(v2x[i]-np.sign(v1x[i])*mu*fms[i])<=0 and np.sign(v1y[i])*np.sign(v2y[i]-np.sign(v1y[i])*mu*fvs[i])<=0:
+	#if np.sign(v1x[i])*np.sign(v2x[i])<=0 and np.sign(v1y[i])*np.sign(v2y[i])<=0:
+	#if np.sign(v1y[i])*np.sign(v2y[i])<0:
+		dscore[i]=1
+	else:
+		dscore[i]=0
 
-#get data
 
-#frequency loop
-fls=np.array([])
-fle=np.array([])
-fus=np.array([])
-fue=np.array([])
-nens=300
-for ncomm in [4,6,8,10,20,40,60,80,100]:
-	folder="data/cond/conditional_probability_fixtau_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)
-	seldat=np.loadtxt(folder+"_smedian.dat")
-	extdat=np.loadtxt(folder+"_emedian.dat")
-	if ncomm==10 or ncomm==20 or ncomm==40:
-		seldat=seldat[2:]#np.loadtxt(folder+"_smedian.dat")
-		extdat=extdat[2:]#np.loadtxt(folder+"_emedian.dat")
-	f0=np.arange(0.02,0.99,0.01)
+color='#d8b365ff'
+oldgrey=mpl.cm.get_cmap('Greys')
+newgrey=mpl.colors.ListedColormap(['white','#d8b365ff'])#['#b4b4b4ff','#d8b365ff'])#oldgrey(np.linspace(0,0.5,3)))
+#tc=ax.tripcolor(fvs,fws,fms,dscore,shading='gouraud',rasterized=True,cmap=newgrey)
+
+#############################
+# Plots of numerical tests
+#############################
+import itertools as itt
+def cf0(w,m,v):
+	#community function for m 
+	N=w+m+v
+	f=np.divide(w,N)
+	return f
+def cf1(w,m,v):
+	#community function for m 
+	N=w+m+v
+	f=np.divide(m,N)
+	return f
+def cf2(w,m,v):
+	#community function for v
+	N=w+m+v
+	f=np.divide(v,N)
+	return f
 	
-	hatsel=savgol_filter(seldat-f0,11,2)	#smoothing
-	selmean_interp=itp.interp1d(f0,hatsel)
-	extmean_interp=itp.interp1d(f0,extdat-f0)
-	fl_sel=None
-	lstart=0.0
-	while fl_sel is None:
-		try:
-			fl_sel=opt.root(selmean_interp,lstart).x
-		except:
-			lstart=lstart+0.05
-			continue
+def draw_background(ax):
+	#draw background
+	ax.tripcolor(fvs,fws,fms,dscore,shading='gouraud',rasterized=True,cmap=newgrey)
+	return ax
+
+def Draw_triangle_from_data(ax,mvs,mvhats,tgtcol='black',**kwargs):
+	###
+	# Draw composition trajectory in triangle plot with accesible region
+	# mvs =[ (m0,v0,trjcol)...]
+	###
+
+	for (mv,mvhat) in itt.product(mvs,mvhats):
+	
+		#Initia/Target point
+		m0,v0,trjcol=mv
+		mhat,vhat=mvhat
+		fm=m0/N0
+		fv=v0/N0
+		fw=1-fm-fv
+		#ax.scatter(fv,fw,fm,marker='o',s=20,ec='black',fc='whitle',zorder=10,label='Initial')
+		ax.scatter(fv,fw,fm,marker='o',s=20,ec='black',fc='white',zorder=10,label='Initial')
+		ax.scatter(vhat,1-vhat-mhat,mhat,marker='^',s=30,c=tgtcol,zorder=10,label='Target')
+	
+		AGS=[]
+		folder="data/raw/"
+		nensemble=30
+		for e in range(nensemble):
+			#AGS.append(np.loadtxt(folder+"N0%s_m0%s_v0%s_r%s_s%s_mu%s_g%s_mhat%s_vhat%s_AGS_point_%d.cycle"%(N0,m0,v0,r,s,mu,ncomm,mhat,vhat,e)))
+			AGS.append(np.loadtxt(folder+"AGS_PD_sto_N0%s_mbar%s_vbar%s_r%s_s%s_mu%s_ncomm%s_mhat%s_vhat%s_ncycle%d%d.cycle"%(N0,m0,v0,r,s,mu,ncomm,mhat,vhat,ncycle,e)))
+		AGS=np.array(AGS) # [ensemble, timestamp, (T,selected index,w----,m----,v----)]
 		
-	lstart=0.99
-	fu_sel=None
-	while fu_sel is None:
-		try:
-			fu_sel=opt.root(selmean_interp,lstart).x
-		except:
-			lstart=lstart-0.05
-			continue
-	fl_ext=None
-	lstart=0.0
-	while fl_ext is None:
-		try:
-			fl_ext=opt.root(extmean_interp,lstart).x
-		except:
-			lstart=lstart+0.05
-			continue
-	lstart=0.99
-	fu_ext=None
-	while fu_ext is None:
-		try:
-			fu_ext=opt.root(extmean_interp,lstart).x
-		except:
-			lstart=lstart-0.05
-			continue
-	print(ncomm,fl_sel,fu_sel,fl_ext,fu_ext)
-	fls=np.append(fls,fl_sel)
-	fus=np.append(fus,fu_sel)
-	fle=np.append(fle,fl_ext)
-	fue=np.append(fue,fu_ext)
-#N0 data
-nens=1000
-ncomm=10
-fls2=np.array([])
-fle2=np.array([])
-fus2=np.array([])
-fue2=np.array([])
-N0s=[700,800,900,1000,2000,4000,6000]
-for N0 in N0s:
-	folder="data/cond/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)
-	seldat=np.loadtxt(folder+"_smedian.dat")
-	extdat=np.loadtxt(folder+"_emedian.dat")
-	f0=np.arange(0.00,0.99,0.01)[:len(seldat)]
+		T=AGS[0,:,0]
+		sel_inds=AGS[:,:,1].astype(int) #selected index - [ensemble, timestamp]
+		c1_sel=np.zeros((nensemble,len(T),ncomm)) #c avg datas, [ensemble, timestamp]
+		c2_sel=np.zeros((nensemble,len(T),ncomm)) #c avg datas, [ensemble, timestamp]
+		w_cho=np.zeros((nensemble,len(T))) #w datas, [ensemble, timestamp]
+		m_cho=np.zeros((nensemble,len(T))) #m datas, [ensemble, timestamp]
+		v_cho=np.zeros((nensemble,len(T))) #m datas, [ensemble, timestamp]
+		#ensemble for initial
+		for i in range(nensemble): #timestamp
+			for j in range(len(T)):
+				#c_sel[i,j,:]=cf(AGS[i,j,ncomm+2:ncomm*2+2],AGS[i,j,ncomm*3+2:])
+				#w_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm]
+				#m_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm*3]
+				#v_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm*5]
+				w_cho[i,j]=AGS[i,j,sel_inds[i,j]+2]
+				m_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm*2]
+				v_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm*4]
+		
+		#Artificial group selection with the selected
+		c0_cho=cf0(w_cho,m_cho,v_cho)
+		c1_cho=cf1(w_cho,m_cho,v_cho)
+		c2_cho=cf2(w_cho,m_cho,v_cho)
+		cho0avg=np.mean(c0_cho,axis=0)	
+/Users/juhee/Project/GroupSelection/artificial_selection_collective_composition/plot_fig5.py:308: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  plt.tight_layout()
+		cho2avg=np.mean(c2_cho,axis=0)
+		#lines=ax.plot(cho2avg,cho0avg,cho1avg)	
+		#print(lines)
+		alphas=np.linspace(0.1,1,len(cho2avg[::1]))
+		#for i in range(len(alphas)):
+		#	print(lines[i])
+		#	lines[i].set(alpha=alphas[i])
+		
+		ax.scatter(cho2avg[::1],cho0avg[::1],cho1avg[::1],marker='o',alpha=alphas,color=trjcol,s=10)	
+		#[ax.plot(cho2avg[i:i+2],cho0avg[i:i+2],cho1avg[i:i+2],c=trjcol,alpha=alphas[i]) for i in range(len(cho2avg)-1)]
+
+	return ax
+
+def Draw_triangle_from_data_single(ax,mvs,mvhats,lidx,tgtcol='black'):
+	###
+	# Draw composition trajectory in triangle plot with accesible region
+	# mvs =[ (m0,v0,trjcol)...]
+	# lidx=[index of lines]
+	###
+
+	for (mv,mvhat) in itt.product(mvs,mvhats):
 	
-	hatsel=savgol_filter(seldat-f0,11,2)	#smoothing
-	selmean_interp=itp.interp1d(f0,hatsel,fill_value='extrapolate')
-	extmean_interp=itp.interp1d(f0,extdat-f0,fill_value='extrapolate')
+		#Initia/Target point
+		m0,v0,trjcol=mv
+		mhat,vhat=mvhat
+		fm=m0/N0
+		fv=v0/N0
+		fw=1-fm-fv
+		#ax.scatter(fv,fw,fm,marker='o',s=20,ec='black',fc='whitle',zorder=10,label='Initial')
+		ax.scatter(fv,fw,fm,marker='o',s=20,c='black',zorder=10,label='Initial')
+		ax.scatter(vhat,1-vhat-mhat,mhat,marker='^',s=30,c=tgtcol,zorder=10,label='Target')
 	
-	#search range when fl is approachable
-	left1=0.01
-	right1=0.02
-	while selmean_interp(left1)*selmean_interp(right1)>0 and right1<1.0:	 #until the sign is different
-		right1=right1+0.01
-	left2=0.51
-	right2=0.52
-	while selmean_interp(left2)*selmean_interp(right2)>0 and right2<1.0:	 #until the sign is different
-		right2=right2+0.01
-	print(right1,right2)
-	if np.abs(right1-1)<1e-8:
-		fl_sel=0.5
-		fu_sel=0.5
-	else:
-		fl_sel=opt.root(selmean_interp,right1).x
-		fu_sel=opt.root(selmean_interp,right2).x
+		AGS=[]
+		folder="data/raw/"
+		nensemble=30
+		for e in range(nensemble):
+			#AGS.append(np.loadtxt(folder+"N0%s_m0%s_v0%s_r%s_s%s_mu%s_g%s_mhat%s_vhat%s_AGS_point_%d.cycle"%(N0,m0,v0,r,s,mu,ncomm,mhat,vhat,e)))
+			AGS.append(np.loadtxt(folder+"AGS_PD_sto_N0%s_mbar%s_vbar%s_r%s_s%s_mu%s_ncomm%s_mhat%s_vhat%s_ncycle%d%d.cycle"%(N0,m0,v0,r,s,mu,ncomm,mhat,vhat,ncycle,e)))
+		AGS=np.array(AGS) # [ensemble, timestamp, (T,selected index,w----,m----,v----)]
+		
+		T=AGS[0,:,0]
+		sel_inds=AGS[:,:,1].astype(int) #selected index - [ensemble, timestamp]
+		c1_sel=np.zeros((nensemble,len(T),ncomm)) #c avg datas, [ensemble, timestamp]
+		c2_sel=np.zeros((nensemble,len(T),ncomm)) #c avg datas, [ensemble, timestamp]
+		w_cho=np.zeros((nensemble,len(T))) #w datas, [ensemble, timestamp]
+		m_cho=np.zeros((nensemble,len(T))) #m datas, [ensemble, timestamp]
+		v_cho=np.zeros((nensemble,len(T))) #m datas, [ensemble, timestamp]
+		#ensemble for initial
+		for i in range(nensemble): #timestamp
+			for j in range(len(T)):
+				#c_sel[i,j,:]=cf(AGS[i,j,ncomm+2:ncomm*2+2],AGS[i,j,ncomm*3+2:])
+				#w_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm]
+				#m_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm*3]
+				#v_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm*5]
+				w_cho[i,j]=AGS[i,j,sel_inds[i,j]+2]
+				m_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm*2]
+				v_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm*4]
+	
+		#Artificial group selection with the selected
+		c0_cho=cf0(w_cho,m_cho,v_cho)
+		c1_cho=cf1(w_cho,m_cho,v_cho)
+		c2_cho=cf2(w_cho,m_cho,v_cho)
+		alphas=np.linspace(0.1,1,len(c2_cho[0,::1]))
+		for i in lidx:	
+			ax.scatter(c2_cho[i,::1],c0_cho[i,::1],c1_cho[i,::1],marker='o',color='green',s=10,alpha=alphas)	
 
-	left1=0.1
-	right1=0.02
-	while extmean_interp(left1)*extmean_interp(right1)>0 and right1<1.0:	 #until the sign is different
-		right1=right1+0.01
-	left2=0.51
-	right2=0.52
-	while extmean_interp(left2)*extmean_interp(right2)>0 and right2<1.0:	 #until the sign is different
-		right2=right2+0.01
-	print(right1,right2)
-	if np.abs(right1-1)<0.1:
-		fl_ext=0.5
-		fu_ext=0.5
-	else:
-		fl_ext=opt.root(extmean_interp,right1).x
-		fu_ext=opt.root(extmean_interp,right2).x
-	print(N0,fl_sel,fu_sel,fl_ext,fu_ext)
-	fls2=np.append(fls2,fl_sel)
-	fus2=np.append(fus2,fu_sel)
-	fle2=np.append(fle2,fl_ext)
-	fue2=np.append(fue2,fu_ext)
+	return ax
+succ='black'#'green'
+fail='black'#'red'
 
-#draw
-shadeup=1.1*np.ones(len(N0s))
-shadedw=np.zeros(len(N0s))
-print(shadeup,shadedw,fue2)
-ax=plt.axes((0.1,0.1,0.3,0.4))
-ax.annotate('a',(-0.22,1.08),xycoords='axes fraction',fontweight='bold')
-ax.annotate('Success',(0.05,0.85),xycoords='axes fraction')
-ax.annotate('Fail',(0.6,0.75),xycoords='axes fraction')
-ax.set_ylim(ymin=0,ymax=1)
-ax.plot(N0s,fus2,c='C0',label='Sim,$f^U$',marker='v',ms=4)
-ax.plot(N0s,fue2,c='C1',label='Th,$f^U$',marker='^',ms=4)
-ax.fill_between(N0s,shadeup,fue2,color='lightgray')
-ax.plot(N0s,fls2,c='C0',label='Sim,$f^L$',marker='v',ms=4,ls='--')
-ax.plot(N0s,fle2,c='C1',label='Th,$f^L$',marker='^',ms=4,ls='--')
-ax.fill_between(N0s,fle2,shadedw,color='lightgray')
-ax.set_xscale('log')
-ax.set_xlim(xmin=500,xmax=6000)
-ax.fill_between([1,700],[1.1,1.1],color='lightgray')
-ax.set_ylabel(r'Target Frequency $\hat{f}$')
-ax.set_xlabel(r'Newborn collective size $N_0$')
-ax.set_xticks([500,1000,5000])
-ax.set_xticklabels([500,1000,5000])
-ax.legend(frameon=False)
+cxx=mxx+0.35#0.55
+cxy=mxy+0.1#0.37
+cx=plt.axes((cxx,cxy,0.30,0.30),projection='ternary')
+cx.annotate('b',xy=(-0.0,1.1),weight='bold',xycoords='axes fraction')
+cx.annotate(' Simulation of composition trajectories according to initial/target points',xy=(0.05,1.1),xycoords='axes fraction')
+cx=draw_background(cx)
+cx=Draw_triangle_from_data(cx,[(50,50,succ),(150,5,succ)],[(0.02,0.9)],tgtcol='#d62728')
+cx.taxis.set_ticks([])
+cx.raxis.set_ticks([])
+cx.laxis.set_ticks([])
 
+cx2=plt.axes((cxx+0.35,cxy,0.30,0.30),projection='ternary')
+cx2=draw_background(cx2)
+cx2=Draw_triangle_from_data(cx2,[(50,50,fail),(150,5,fail),(75,900,fail)],[(0.33,0.33)],tgtcol='#2ca02c')
+cx2.taxis.set_ticks([])
+cx2.raxis.set_ticks([])
+cx2.laxis.set_ticks([])
 
-bx=plt.axes((0.5,0.1,0.3,0.4))
-fs=[4,6,8,10,20,40,60,80,100]
-shadeup=1.1*np.ones(len(fs))
-shadedw=np.zeros(len(fs))
-bx.annotate('b',(-0.22,1.08),xycoords='axes fraction',fontweight='bold')
-bx.annotate('Success',(0.65,0.93),xycoords='axes fraction')
-bx.annotate('Fail',(0.05,0.45),xycoords='axes fraction')
-bx.set_ylim(ymin=0,ymax=1)
-bx.set_xscale('log')
-bx.plot(fs,fus,c='C0',label='Sim,$f^U$',marker='v',ms=4)
-bx.plot(fs,fue,c='C1',label='Th,$f^U$',marker='^',ms=4)
-bx.fill_between(fs,shadeup,fue,color='lightgray')
-bx.plot(fs,fls,c='C0',label='Sim,$f^L$',marker='v',ms=4,ls='--')
-bx.plot(fs,fle,c='C1',label='Th,$f^L$',marker='^',ms=4,ls='--')
-bx.fill_between(fs,fle,shadedw,color='lightgray')
-bx.set_xlabel(r'Number of collectives $g$')
-bx.set_xticks([5,10,50,100])
-bx.set_xticklabels([5,10,50,100])
-bx.set_xlim(4,100)
+cx3=plt.axes((cxx+0.70,cxy,0.30,0.30),projection='ternary')
+cx3=draw_background(cx3)
+cx3=Draw_triangle_from_data(cx3,[(50,50,fail),(150,5,succ),(75,900,fail)],[(0.75,0.05)],tgtcol='#ff00ff')
+#cx3=Draw_triangle_from_data_single(cx3,[(150,5,succ)],[(0.5,0.1)],range(nensemble))
+cx3.taxis.set_ticks([])
+cx3.raxis.set_ticks([])
+cx3.laxis.set_ticks([])
 
-formatter='svg' #or png
-plt.savefig('figures/Fig5.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+formatter='svg'
+plt.tight_layout()
+#plt.savefig('figures/Fig5_v3.'+formatter,bbox_inches='tight',dpi=300,format=formatter)
 plt.show()
 

@@ -16,15 +16,14 @@ plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'STIXGeneral:italic:bold'
 plt.rcParams['mathtext.bf'] = 'STIXGeneral:italic:bold'
 plt.rcParams['axes.prop_cycle']=mpl.cycler(color=['#1f77b4', '#6600ff', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
-plt.rcParams['axes.prop_cycle']=mpl.cycler(color=['#1f77b4', '#6600ff', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
 
 mu=1e-4
 r=0.5
 s=3.0e-2
 N0=1000
-mbar=200
+mbar=50
 ncomm=10
-rhat=0.10
+rhat=0.15
 
 tcycle=np.log(ncomm+1)/r
 
@@ -45,257 +44,30 @@ cset=[
 '#4575b4',
 '#313695'
 ]
-cx=plt.axes((0.10,0.55,0.33,0.33))
 
-################################
-#data generate version
-################################
-
-m0sel=np.sort(np.clip(np.random.binomial(N0,mbar/N0,size=ncomm).astype(int),0,1000))
-w0sel=N0-m0sel
-
-m0nat=m0sel
-w0nat=w0sel
-
-#define model
-proFunc=[
-lambda x: r*x[0],
-lambda x: mu*x[0],
-lambda x: (r+s)*x[1]
-]
-changeVec=np.array([[1,0],[-1,1],[0,1]]).astype(int)
-rxnOrder=np.array([[1,0],[1,0],[0,1]]).astype(int)
-growthmodel=model(proFunc=proFunc,changeVec=changeVec,rxnOrder=rxnOrder)
-solver=tau_leaping(model=growthmodel,eps=0.01)
-
-selected=[]
-averaged=np.array([])
-averagedGR=np.array([])
-deviated=np.array([])
-deviatedGR=np.array([])
-minGR=np.array([])
-maxGR=np.array([])
-tselect=[]
-
-for i in range(ncycle):
-	print("Cycle %d"%i)
-	tsel=[] #group,time
-	wsel=[]
-	msel=[]
-	selind=[]
-	tnat=[]
-	wnat=[]
-	mnat=[]
-	for j in range(ncomm):
-		tsel.append(np.array([]))
-		wsel.append(np.array([]))
-		msel.append(np.array([]))
-		tnat.append(np.array([]))
-		wnat.append(np.array([]))
-		mnat.append(np.array([]))
-
-	#growth phase	
-	lastw=[]
-	lastm=[]
-	lastwGR=[]
-	lastmGR=[]
-	for j in range(ncomm):
-
-		#ACS model : Growth, Selection, and Reproduction
-		T,X=solver.run(np.array([w0sel[j],m0sel[j]]),0,tcycle)
-		tsel[j]=np.append(tsel[j],T[:-1]+i*tcycle)	
-		wsel[j]=np.append(wsel[j],X[0,:-1])
-		msel[j]=np.append(msel[j],X[1,:-1])
-	
-		#store for selection
-		lastw.append(X[0,-1])
-		lastm.append(X[1,-1])
-
-		#NS: Growth and Reproduction without selection
-		T,X=solver.run(np.array([w0nat[j],m0nat[j]]),0,tcycle)
-		tnat[j]=np.append(tnat[j],T[:-1]+i*tcycle)	
-		wnat[j]=np.append(wnat[j],X[0,:-1])
-		mnat[j]=np.append(mnat[j],X[1,:-1])
-		
-		lastwGR.append(X[0,-1])
-		lastmGR.append(X[1,-1])
-		
-		m0nat[j]=np.random.binomial(N0,cf(wnat[j][-1],mnat[j][-1],r=r,s=s),size=1)
-		w0nat[j]=N0-m0nat[j]
-	
-	lastw=np.array(lastw)
-	lastm=np.array(lastm)
-	lastwGR=np.array(lastwGR)
-	lastmGR=np.array(lastmGR)
-	cfs=cf(lastwGR,lastmGR)
-	averagedGR=np.append(averagedGR,np.mean(cfs))
-	deviatedGR=np.append(deviatedGR,np.std(cfs))
-	maxGR=np.append(maxGR,np.max(cfs))
-	minGR=np.append(minGR,np.min(cfs))
-	
-	#selection phase
-	ind_sel=select(lastw,lastm,r=r,s=s,rhat=rhat)
-	w_sel=lastw[ind_sel]
-	m_sel=lastm[ind_sel]
-	selind.append(ind_sel)
-	selected.append(cf(w_sel,m_sel,r=r,s=s))
-	cfs=cf(lastw,lastm)
-	averaged=np.append(averaged,np.mean(cfs))
-	deviated=np.append(deviated,np.std(cfs))
-	tselect.append((i+1)*tcycle)
-
-	#save data	
-	fts=open('data/figS/fig2_tsel_%d.dat'%i,'a')
-	fws=open('data/figS/fig2_wsel_%d.dat'%i,'a')
-	fms=open('data/figS/fig2_msel_%d.dat'%i,'a')
-	fsi=open('data/figS/fig2_selind_%d.dat'%i,'a')
-	np.savetxt(fsi,selind)
-	ftn=open('data/figS/fig2_tnat_%d.dat'%i,'a')
-	fwn=open('data/figS/fig2_wnat_%d.dat'%i,'a')
-	fmn=open('data/figS/fig2_mnat_%d.dat'%i,'a')
-	for j in range(ncomm):
-		np.savetxt(fts,tsel[j],newline=' ')
-		fts.write('\n')
-		np.savetxt(fws,wsel[j],newline=' ')
-		fws.write('\n')
-		np.savetxt(fms,msel[j],newline=' ')
-		fms.write('\n')
-		np.savetxt(ftn,tnat[j],newline=' ')
-		ftn.write('\n')
-		np.savetxt(fwn,wnat[j],newline=' ')
-		fwn.write('\n')
-		np.savetxt(fmn,mnat[j],newline=' ')
-		fmn.write('\n')
-	fts.close()
-	fws.close()
-	fms.close()
-	fsi.close()
-	ftn.close()
-	fwn.close()
-	fmn.close()
-	
-	#draw	
-	for j in range(0,ncomm):
-		cfs=cf(wsel[j],msel[j],r=r,s=s)
-		if j==ind_sel:
-			cx.plot(tsel[j],cfs,lw=1,c='black')
-		else:
-			cx.plot(tsel[j],cfs,lw=1,c='black',alpha=0.3)
-		#nx.plot(tsel[j],(wsel[j]+msel[j]),lw=1,c='red')
-	
-	#reproduction phase	
-	#w0sel,m0sel=hypergeometric_reproduce(w_sel,m_sel,N0)	
-	m0sel=np.random.binomial(N0,cf(w_sel,m_sel,r=r,s=s),size=ncomm)
-	m0sel=np.sort(m0sel)
-	w0sel=N0-m0sel
-
-
-'''
-################################
-#data read version
-################################
-tsels=[] #group,time
-wsels=[]
-msels=[]
-selinds=[]
-tnats=[]
-wnats=[]
-mnats=[]
-
-cx=plt.axes((0.10,0.55,0.33,0.33))
-cx.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
-selected=[]
-averaged=np.array([])
-averagedGR=np.array([])
-for i in range(ncycle):
-	print("Cycle %d"%i)
-	tsel=[] #group,time
-	wsel=[]
-	msel=[]
-	selind=[]
-	tnat=[]
-	wnat=[]
-	mnat=[]
-
-	fts=open('data/fig2/fig2_tsel_%d.dat'%i,'r')
-	fws=open('data/fig2/fig2_wsel_%d.dat'%i,'r')
-	fms=open('data/fig2/fig2_msel_%d.dat'%i,'r')
-	fsi=open('data/fig2/fig2_selind_%d.dat'%i,'r')
-	ind_sel=np.loadtxt(fsi).astype(int)
-	ftn=open('data/fig2/fig2_tnat_%d.dat'%i,'r')
-	fwn=open('data/fig2/fig2_wnat_%d.dat'%i,'r')
-	fmn=open('data/fig2/fig2_mnat_%d.dat'%i,'r')
-
-	#read 
-	for j in range(ncomm):
-		tsel.append(np.array(fts.readline().split(' ')[:-1]).astype(float))
-		wsel.append(np.array(fws.readline().split(' ')[:-1]).astype(float))
-		msel.append(np.array(fms.readline().split(' ')[:-1]).astype(float))
-		tnat.append(np.array(ftn.readline().split(' ')[:-1]).astype(float))
-		wnat.append(np.array(fwn.readline().split(' ')[:-1]).astype(float))
-		mnat.append(np.array(fmn.readline().split(' ')[:-1]).astype(float))
-	
-	#prepare cx2
-	selected.append(cf(wsel[ind_sel][-1],msel[ind_sel][-1],r=r,s=s))
-	wnatnp=np.array([])
-	mnatnp=np.array([])
-	for j in range(ncomm):
-		wnatnp=np.append(wnatnp,wnat[j][-1])
-		mnatnp=np.append(mnatnp,mnat[j][-1])
-	cfs=cf(wnatnp,mnatnp,r=r,s=s)
-	averagedGR=np.append(averagedGR,np.mean(cfs))
-
-	#draw	
-	for j in range(0,ncomm):
-		cfs=cf(wsel[j],msel[j],r=r,s=s)
-		if j==ind_sel:
-			cx.plot(tsel[j],cfs,lw=1,c='black')
-		else:
-			cx.plot(tsel[j],cfs,lw=0.5,c='gray',alpha=0.4)
-'''
-
-cx.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
-cx.hlines(rhat,0,ncycle*tcycle,linestyles=':',colors='black')
-cx.set_ylabel(r'Mutant frequency $f$')
-cx.set_xlabel(r'Time $t$')
-cx.set_ylim(ymin=0.02,ymax=0.25)
-cx.annotate(r'$\tau\approx4.8$',xy=(8*tcycle,0.06))
-cx.annotate('',xy=(9*tcycle,0.10),xytext=(10*tcycle,0.10),arrowprops=dict(arrowstyle='->',mutation_scale=10))
-cx.annotate('',xy=(8*tcycle,0.10),xytext=(7*tcycle-0.01,0.10),arrowprops=dict(arrowstyle='->',mutation_scale=10))
-cx.vlines([8*tcycle,9*tcycle],0.09,0.11,linestyles='-',colors='black')
-
-cx2=plt.axes((0.55,0.55,0.33,0.33))
-cx2.annotate('b',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
-cx2.set_ylabel(r'Mutant frequency $f$')
-cx2.set_xlabel(r'Cycle $k$')
-cx2.hlines(rhat,0,ncycle,linestyles=':',colors='black')
-k=np.arange(1,ncycle+1)
-cx2.plot(k,selected,marker='^',ms=4,c='black',label=r'$f^*$')
-cx2.plot(k,averagedGR,marker='s',ms=4,c='blue',ls='--',label=r'$\bar{f}_\mathrm{NS}$')
-cx2.legend(fontsize='small',handlelength=1,labelspacing=0.3)
-cx2.set_ylim(ymin=0.02,ymax=0.25)
-
-'''
-#Fig2c... suc - fail - suc 구간 f0=0.1, ftg=0.2,0.5,0.8
-#Fig2d... different initial d
 
 cset2=[
 '#1F77B4','#0D89E0','#273E4F'
 ]
 
-cx3=plt.axes((0.10,0.10,0.33,0.33))
-cx3.annotate('c',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
-cx4=plt.axes((0.55,0.10,0.33,0.33))
-cx4.annotate('d',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
-	
+fl=0.28580445	#obtained from Fig4
+fu=0.68687363
+
+ax=plt.axes((0.05,0.65,0.3,0.3)) #fhat 0.9
+ax.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+bx=plt.axes((0.45,0.65,0.3,0.3)) #fhat 0.5
+bx.annotate('b',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+cx=plt.axes((0.85,0.65,0.3,0.3)) #fhat 0.1
+cx.annotate('c',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+
 nens=300
 ncycle=1000
 
 #Read AGS data - selected only
-rhats=[0.9,0.5,0.1]
-mbar=50
+rhat=0.9
+mbars=[0,600,800,950]
 scatterpoints=np.power(10,np.arange(0,3,0.3)).astype(int)
-for idx,rhat in enumerate(rhats):
+for idx,mbar in enumerate(mbars):
 
 	#or, ensembled data	
 	descriptor="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle) 
@@ -304,44 +76,271 @@ for idx,rhat in enumerate(rhats):
 	T=np.arange(len(choavg))+1
 	
 	#cx3.plot(T,choavg,marker='o',ms=3,lw=1,label=r'$\hat{f}=%s$'%rhat,c=cset2[idx])
-	cx3.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(idx+1))#,c=cset2[idx])
-	cx3.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='^',)#,c=cset2[idx])
+	ax.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(4))#,c=cset2[idx])
+	#cx3.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='^',)#,c=cset2[idx])
 	#cx3.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
-	cx3.hlines(rhat,0,len(T),ls=':',colors='C%d'%(idx+1))
+ax.hlines(rhat,0,len(T),ls=':',colors='C%d'%(4))
+ax.hlines(fu,len(T)-700,len(T),ls='-',colors='black')
+ax.hlines(fl,len(T)-700,len(T),ls='--',colors='black')
 
-#Fig2d 
-#Read AGS data - selected only
-rhats=[0.9,0.5,0.1]
-mbar=500
-#for (rhat,mbar) in itt.product(rhats,mbars):
-for idx,rhat in enumerate(rhats):
-	
+rhat=0.5
+mbars=[0,600,950]
+scatterpoints=np.power(10,np.arange(0,3,0.3)).astype(int)
+for idx,mbar in enumerate(mbars):
+
 	#or, ensembled data	
 	descriptor="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle) 
 	folder="data/ens/"+descriptor
 	choavg,chostd,_,_=np.loadtxt(folder+"_nens%d.cycle"%(nens),unpack=True)
 	T=np.arange(len(choavg))+1
-	cx4.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(idx+1))
-	if idx==2:
-		cx4.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='v',s=10)#,c=cset2[idx])
-	else:
-		cx4.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='v')#,c=cset2[idx])
-	#cx4.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
-	cx4.hlines(rhat,0,len(T),ls=':',colors='C%d'%(idx+1))
 	
-cx3.set_ylim(ymin=0,ymax=1)
-cx3.set_xlabel(r'Cycle $k$')
-cx3.set_ylabel(r'Selected Freq. $\langle f^*\rangle$')
-cx3.legend(fontsize='small',handlelength=1,labelspacing=0.3,loc=(0.6,0.15))
-cx3.set_xscale('log')
-cx3.set_xlim(xmin=1)
-cx4.set_xlabel(r'Cycle $k$')
-cx4.set_ylabel(r'Selected Freq. $\langle f^*\rangle$')
-cx4.set_ylim(ymin=0,ymax=1)
-cx4.set_xlim(xmin=1)
-cx4.set_xscale('log')
+	#cx3.plot(T,choavg,marker='o',ms=3,lw=1,label=r'$\hat{f}=%s$'%rhat,c=cset2[idx])
+	bx.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(2))#,c=cset2[idx])
+	#cx3.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='^',)#,c=cset2[idx])
+	#cx3.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
+bx.hlines(rhat,0,len(T),ls=':',colors='C%d'%(2))
+bx.hlines(fu,len(T)-700,len(T),ls='-',colors='black')
+bx.hlines(fl,len(T)-700,len(T),ls='--',colors='black')
+
+rhat=0.1
+mbars=[0,250,450,950]
+scatterpoints=np.power(10,np.arange(0,3,0.3)).astype(int)
+for idx,mbar in enumerate(mbars):
+
+	#or, ensembled data	
+	descriptor="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle) 
+	folder="data/ens/"+descriptor
+	choavg,chostd,_,_=np.loadtxt(folder+"_nens%d.cycle"%(nens),unpack=True)
+	T=np.arange(len(choavg))+1
+	
+	#cx3.plot(T,choavg,marker='o',ms=3,lw=1,label=r'$\hat{f}=%s$'%rhat,c=cset2[idx])
+	cx.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='black')#'C%d'%(3))#,c=cset2[idx])
+	#cx3.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='^',)#,c=cset2[idx])
+	#cx3.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
+
+#realization result samples starting from mbar=250
+mbar=250
+descriptor="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle) 
+infolder="data/raw/"+descriptor+"/"
+escaped=[]
+AGS=[]
+for e in range(nens):
+	AGS.append(np.loadtxt(infolder+"%d.cycle"%(e)))
+AGS=np.array(AGS) # [ensemble, timestamp, (T,selected index,w----,m----)]
+
+T=AGS[0,:,0]
+sel_inds=AGS[:,:,1].astype(int) #selected index - [ensemble, timestamp]
+c_sel=np.zeros((nens,len(T),ncomm)) #c avg datas, [ensemble, timestamp]
+w_cho=np.zeros((nens,len(T))) #w datas, [ensemble, timestamp]
+m_cho=np.zeros((nens,len(T))) #m datas, [ensemble, timestamp]
+#ensemble loop
+for i in range(nens):
+	#timestamp loop
+	for j in range(len(T)):
+		c_sel[i,j,:]=cf(AGS[i,j,ncomm+2:ncomm*2+2],AGS[i,j,ncomm*3+2:])
+		w_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm]
+		m_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm*3]
+
+#Artificial group selection with the selected
+c_cho=cf(w_cho,m_cho)
+T=np.arange(len(choavg))+1
+for e in [0,2, 35]:#,62, 76]:
+	cx.plot(T,c_cho[e],c='grey',alpha=0.5)
+cx.hlines(rhat,0,len(T),ls=':',colors='C%d'%(3))
+cx.hlines(fu,len(T)-700,len(T),ls='-',colors='black')
+cx.hlines(fl,len(T)-700,len(T),ls='--',colors='black')
+
+ax.set_ylim(ymin=0,ymax=1)
+ax.set_xlabel(r'Cycle $k$')
+ax.set_ylabel(r'Selected Freq. $\langle f^*\rangle$')
+ax.set_xlim(xmin=1)
+#ax.legend(fontsize='small',handlelength=1,labelspacing=0.3,loc=(0.6,0.15))
+ax.set_xscale('log')
+bx.set_xlim(xmin=1)
+bx.set_xlabel(r'Cycle $k$')
+bx.set_ylim(ymin=0,ymax=1)
+bx.set_xlim(xmin=1)
+bx.set_xscale('log')
+cx.set_xlim(xmin=1)
+cx.set_xlabel(r'Cycle $k$')
+cx.set_ylim(ymin=0,ymax=1)
+cx.set_xlim(xmin=1)
+cx.set_xscale('log')
+
+dx=plt.axes((0.10,0.0,0.5,0.5)) #fhat 0.9
+dx.annotate('d',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+
+dat=np.loadtxt("data/ens/N0%s_r%s_s%s_mu%s_g%s_ncycle%d_diagram_fig2_abs.txt"%(N0,r,s,mu,ncomm,ncycle))
+with np.printoptions(precision=2):
+	print(dat)
+
+dat[dat<=0.05]=0
+dat[dat>0.1]=2
+dat[np.where((dat<=0.10) & (dat>0.048))]=1
+
+print(dat)
+
+
+
+rhats=[0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1.0]
+mbars=np.array([0,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000])/N0
+
+#dx=plt.axes((0.1,0.1,0.5,0.5))
+frange=np.arange(0.1,1.0,0.1)
+#import matplotlib as mpl
+#oldgrey=mpl.cm.get_cmap('Greys_r')
+#newgrey=mpl.colors.ListedColormap(oldgrey(np.linspace(0.7,1,3)))
+newgrey=mpl.colors.ListedColormap(['#d8b365ff','#5ab4acff','#b4b4b4ff'])
+heatmap=dx.pcolormesh(rhats,mbars,dat,cmap=newgrey,shading='flat')
+heatmap.set_clim(0,3)
+cbar=plt.colorbar(heatmap,extend='max',ticks=[0,1,2])
+cbar.set_label(r'Relative error $(f^*_{1000}-\hat{f})/\hat{f}$')
+cbar.set_ticklabels([0,0.05,0.1])
+dx.set_xlim(xmin=0,xmax=1)
+dx.set_ylim(ymin=0,ymax=1)
+dx.set_xlabel(r'Initial Frequency $\mathbf{\bar{f}_o}$',weight='bold')
+dx.set_ylabel(r'Target Frequency $\mathbf{\hat{f}}$',weight='bold')
+
+fl=0.28580445	#obtained from Fig4
+fu=0.68687363
+#dx.fill_between([0,fl],[fl,fl],color='lightgray',alpha=0.5)
+#dx.fill_between([0,1],[1,1],[fu,fu],color='lightgray',alpha=0.5)
+dx.hlines(fl,0,fl,colors='black',ls='--')
+dx.vlines(fl,0,fl,colors='black',ls='--')
+dx.hlines(fu,0,1,colors='black',ls='-')
+dx.annotate(r'$\mathbf{f^L}$',weight='bold',xy=(0,fl),xytext=(0.10,fl+0.10),arrowprops=dict(arrowstyle='->'))
+dx.annotate(r'$\mathbf{f^L}$',weight='bold',xy=(fl,0),xytext=(fl+0.10,0.10),arrowprops=dict(arrowstyle='->'))
+dx.annotate(r'$\mathbf{f^U}$',weight='bold',xy=(0,fu),xytext=(0.10,fu-0.10),arrowprops=dict(arrowstyle='->'))
+
+dx.annotate(r'Success',weight='bold',xy=(0.03,fl-0.23))
+dx.annotate(r'Success',weight='bold',xy=(0.70,fu+0.10))
+dx.annotate(r'Fail',weight='bold',xy=(0.45,0.35))
+
 '''
+#Suppoting information
+dx.scatter([0.05],[0.85],c='C1',marker='^')
+dx.scatter([0.05],[0.50],c='C2',marker='^')
+dx.scatter([0.05],[0.15],c='C3',marker='^')
+dx.scatter([0.5],[0.85],c='C1',marker='v')
+dx.scatter([0.5],[0.50],c='C2',marker='v')
+dx.scatter([0.5],[0.15],c='C3',marker='v')
+'''
+
+cxx=0.7
+cxy=0.25
+#Conclutsion for Two strain case
+#large frequency
+ex1=plt.axes((cxx,cxy,0.4,0.25))
+ex1.annotate('e',(-0.05,0.8),xycoords='axes fraction',fontweight='bold')
+ex1.annotate(r'Success or Fail according to the target composition',(0.00,0.8),xycoords='axes fraction')
+
+#frame
+ex1.annotate('',xy=(1,0),xytext=(0,0),arrowprops=dict(arrowstyle='->'))
+ex1.fill_between([0,1],0.02,0,color='grey',alpha=0.3)
+ex1.annotate(r'$\mathbf{0}$',xy=(0,-0.02))
+ex1.annotate(r'$\mathbf{1}$',xy=(0.95,-0.02))
+
+ex1.set_ylim(ymin=-0.05,ymax=0.05)
+
+
+ini1=0.2
+h1=0.01
+ini2=0.5
+h2=0.01
+ini3=0.8
+h3=0.01
+tgt=0.9
+ex1.vlines(tgt,0,0.02,colors='black',ls=':',label='Target') #target
+ex1.annotate('Target',(tgt,0.02))
+ex1.scatter(ini1,h1,c='black',marker='o',label='Initial') #initial 1
+ex1.scatter(ini2,h2,c='black',marker='o') #initial 2
+ex1.scatter(ini3,h3,c='black',marker='o') #initial 2
+
+ex1.annotate('',xy=(ini2,h2),xytext=(ini1,h1),arrowprops=dict(arrowstyle='->'))
+ex1.annotate('',xy=(ini3,h3),xytext=(ini2,h2),arrowprops=dict(arrowstyle='->'))
+ex1.annotate('',xy=(tgt,h3),xytext=(ini3,h3),arrowprops=dict(arrowstyle='->'))
+
+ex1.vlines([0.3,0.7],0.005,-0.005,colors='black')
+ex1.annotate(r'$\mathbf{f^L}$',xy=(0.28,-0.02))
+ex1.annotate(r'$\mathbf{f^U}$',xy=(0.68,-0.02))
+
+ex1.set_xlim(xmin=0,xmax=1)
+
+ex1.axis('off')
+
+#mid frequency
+ex2=plt.axes((cxx,cxy-0.15,0.4,0.25))
+
+#frame
+ex2.annotate('',xy=(1,0),xytext=(0,0),arrowprops=dict(arrowstyle='->'))
+ex2.fill_between([0,1],0.02,0,color='white',alpha=0.3)
+ex2.annotate(r'$\mathbf{0}$',xy=(0,-0.02))
+ex2.annotate(r'$\mathbf{1}$',xy=(0.95,-0.02))
+
+ex2.set_ylim(ymin=-0.05,ymax=0.05)
+
+tgt=0.5
+ini1=0.2
+h1=0.010
+ini2=0.5
+h2=0.01
+ini3=0.8
+h3=0.01
+ex2.vlines(tgt,0,0.02,colors='black',ls=':',label='Target') #target
+ex2.scatter(ini1,h1,c='black',marker='o',label='Initial(low)') #initial 1
+ex2.scatter(ini2,h2,c='black',marker='o',label='Initial(mid)') #initial 2
+ex2.scatter(ini3,h3,c='black',marker='o',label='Initial(high)') #initial 2
+
+ex2.annotate('',xy=(ini2,h2),xytext=(ini1,h1),arrowprops=dict(arrowstyle='->'))
+ex2.annotate('',xy=(0.7,h2),xytext=(ini2,h2),arrowprops=dict(arrowstyle='->'))
+ex2.annotate('',xy=(0.7,h3),xytext=(ini3,h3),arrowprops=dict(arrowstyle='->'))
+
+ex2.vlines([0.3,0.7],0.005,-0.005,colors='black')
+ex2.annotate(r'$\mathbf{f^L}$',xy=(0.28,-0.02))
+ex2.annotate(r'$\mathbf{f^U}$',xy=(0.68,-0.02))
+
+ex2.set_xlim(xmin=0,xmax=1)
+ex2.axis('off')
+
+#small frequency
+ex3=plt.axes((cxx,cxy-0.3,0.4,0.25))
+
+#frame
+ex3.annotate('',xy=(1,0),xytext=(0,0),arrowprops=dict(arrowstyle='->'))
+ex3.fill_between([0,0.3],0.025,0,color='grey',alpha=0.3, label='success')
+ex3.fill_between([0.3,1],0.025,0,color='white',alpha=0.3,label='fail')
+ex3.annotate(r'$\mathbf{0}$',xy=(0,-0.02))
+ex3.annotate(r'$\mathbf{1}$',xy=(0.95,-0.02))
+ex3.annotate('Mutant frequency',xy=(0.5,0.2),xycoords='axes fraction',ha='center',va='top')
+
+ex3.set_ylim(ymin=-0.05,ymax=0.05)
+
+tgt=0.05
+ini1=0.2
+h1=0.015
+ini2=0.5
+h2=0.015
+ini3=0.8
+h3=0.015
+
+ex3.scatter(ini1,h1,c='black',marker='o',label='Initial') #initial 1
+ex3.scatter(ini2,h2,c='black',marker='o') #initial 2
+ex3.scatter(ini3,h3,c='black',marker='o') #initial 2
+ex3.vlines(tgt,-0.005,0.025,colors='black',ls=':',label='Target') #target
+
+ex3.annotate('',xy=(tgt,h1),xytext=(ini1,h1),arrowprops=dict(arrowstyle='->'))
+ex3.annotate('',xy=(0.7,h2),xytext=(ini2,h2),arrowprops=dict(arrowstyle='->'))
+ex3.annotate('',xy=(0.7,h3),xytext=(ini3,h3),arrowprops=dict(arrowstyle='->'))
+
+ex3.vlines([0.3,0.7],0.005,-0.005,colors='black')
+ex3.annotate(r'$\mathbf{f^L}$',xy=(0.28,-0.02))
+ex3.annotate(r'$\mathbf{f^U}$',xy=(0.68,-0.02))
+
+#ex3.legend(frameon=False,loc=(1.1,0.5))
+ex3.set_xlim(xmin=0,xmax=1)
+ex3.axis('off')
+
 formatter='svg' #or 'png'
-plt.savefig('figures/FigS4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+#plt.savefig('figures/Fig2_v2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 

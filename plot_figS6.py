@@ -80,5 +80,5 @@ cx.set_ylabel(r'$\sigma_f^2(\tau)$')
 cx.set_xticks([1/1000,1/5000])
 cx.set_xticklabels(['1/1000','1/5000'])
 formatter='svg'
-plt.savefig('figures/FigS6.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+#plt.savefig('figures/FigS6.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
