@@ -93,11 +93,15 @@ def sigRmbar_th(c,barN,N0,g):
 
 if __name__=='__main__':
 	import matplotlib.pyplot as plt
+
+	#plt.rcParams['text.usetex']=True
+	plt.rcParams["font.family"] = "arial"
 	plt.rcParams["font.weight"] = "bold"
 	plt.rcParams["axes.labelweight"] = "bold"
+	#plt.rcParams["mathtext.fontset"]='stix'
 	plt.rcParams['mathtext.fontset'] = 'custom'
-	plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
-	plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
+	plt.rcParams['mathtext.it'] = 'STIXGeneral:italic:bold'
+	plt.rcParams['mathtext.bf'] = 'STIXGeneral:italic:bold'
 	'''
 	C=np.linspace(0,1,100)
 	barN=11*1000
@@ -184,8 +188,8 @@ if __name__=='__main__':
 	print(barw,sig2w,'?=',np.mean(ws2),np.var(ws2))	
 	pdfw=st.norm.pdf(wrange,loc=barw,scale=np.sqrt(sig2w))
 	ax2.plot(wrange,pdfw,label='Gauss')
-	ax2.set_xlabel(r'$w$')
-	ax2.set_ylabel(r'$P(w)$')
+	ax2.set_xlabel(r'$S$')
+	ax2.set_ylabel(r'$P(S)$')
 	ax2.legend(frameon=False,handlelength=0.5)
 
 	#bx=plt.axes((0.1,0.1,0.4,0.3))
@@ -197,8 +201,8 @@ if __name__=='__main__':
 	print(barm,sig2m,'?=',np.mean(ms2),np.var(ms2))	
 	pdfm=st.norm.pdf(mrange,loc=barm,scale=np.sqrt(sig2m))
 	bx2.plot(mrange,pdfm)
-	bx2.set_xlabel(r'$m$')
-	bx2.set_ylabel(r'$P(m)$')
+	bx2.set_xlabel(r'$F$')
+	bx2.set_ylabel(r'$P(F)$')
 	#cx2=plt.axes((0.1,0.1,0.35,0.3))
 	#cx2.hist(cs,density=True,alpha=0.4)
 	#crange=np.linspace(barc-3*np.sqrt(sig2c),barc+3*np.sqrt(sig2c),100)	

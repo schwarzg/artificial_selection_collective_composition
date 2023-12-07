@@ -4,7 +4,7 @@ from selection import community_function as cf
 import itertools as itt
 import tqdm.contrib.itertools as titt
 	
-mu=1e-4
+mu=0#1e-4
 r=0.5
 s=3.0e-2
 N0=1000
@@ -21,11 +21,11 @@ mbars=[0,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,
 
 dats=[]
 
-nensemble=20#300
+nensemble=100#20#300
 c=0
 #for (rhat,mbar) in itt.product(rhats,mbars):
 for (rhat,mbar) in titt.product(rhats,mbars):
-	
+	print(rhat,mbar)	
 	descriptor="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle) 
 	infolder="data/raw/"+descriptor+"/"
 	outfolder="data/ens/"+descriptor
@@ -62,4 +62,4 @@ for (rhat,mbar) in titt.product(rhats,mbars):
 
 dats=np.array(dats).reshape((len(rhats),len(mbars)))
 print(dats)
-np.savetxt("data/ens/N0%s_r%s_s%s_mu%s_g%s_ncycle%d_diagram_fig2_abs.txt"%(N0,r,s,mu,ncomm,ncycle),dats)
+np.savetxt("data/ens/N0%s_r%s_s%s_mu%s_g%s_ncycle%d_diagram_abs.txt"%(N0,r,s,mu,ncomm,ncycle),dats)

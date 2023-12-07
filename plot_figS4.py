@@ -1,90 +1,268 @@
 import numpy as np
+from model import model
+from tau_leaping import tau_leaping
+from selection import select
+from selection import community_function as cf
+from selection import score_function as sf
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+import itertools as itt
+
+plt.rcParams["font.family"] = "arial"
 plt.rcParams["font.weight"] = "bold"
 plt.rcParams["axes.labelweight"] = "bold"
+#plt.rcParams["mathtext.fontset"]='stix'
 plt.rcParams['mathtext.fontset'] = 'custom'
-plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
-plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
-import time
-import scipy.interpolate as itp
-import scipy.optimize as opt
-import sys
+plt.rcParams['mathtext.it'] = 'STIXGeneral:italic:bold'
+plt.rcParams['mathtext.bf'] = 'STIXGeneral:italic:bold'
+plt.rcParams['axes.prop_cycle']=mpl.cycler(color=['#1f77b4', '#6600ff', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
+plt.rcParams['axes.prop_cycle']=mpl.cycler(color=['#1f77b4', '#6600ff', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
 
-sys.setrecursionlimit(10000)
-#parameter prepare
 mu=1e-4
 r=0.5
-s=3e-2
+s=3.0e-2
 N0=1000
-mbar=100
+mbar=200
 ncomm=10
-rhat=0
-nens= 300 # 1000 for +, 300 for -
-ncycle=10
+rhat=0.10
+
 tcycle=np.log(ncomm+1)/r
 
-from one_step_functions import *
-from custom_plot import *
 
-##Load data
-folder="data/cond/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)
+#Fig2a : single trajectory
+#Fig2a : extracted data of single trajectory
 
-#Simulation
-sel_pdf=np.loadtxt(folder+"_sel.dat")
-sel_median=np.loadtxt(folder+"_smedian.dat")
-sel_mean=np.loadtxt(folder+"_smean.dat")
+ncycle=13
+cx=plt.axes((0.10,0.55,0.33,0.33))
+################################
+#data generate version
+################################
 
-#Theory
-ext_pdf=np.loadtxt(folder+"_ext.dat")
-ext_median=np.loadtxt(folder+"_emedian.dat")
-ext_mean=np.loadtxt(folder+"_emean.dat")
+m0sel=np.sort(np.clip(np.random.binomial(N0,mbar/N0,size=ncomm).astype(int),0,1000))
+w0sel=N0-m0sel
 
-fbins_t=[]
-fbins_s=[]
-f0=np.arange(0.00,0.99,0.01)
-for fsel in f0: 
-	#print("Frequency ",fsel)
-	fbins_s.append(np.linspace(np.maximum(0,fsel-0.05),np.minimum(1,fsel+0.05),30))
-	fbins_t.append(np.linspace(np.maximum(0,fsel-0.05),np.minimum(1,fsel+0.05),30))
+m0nat=m0sel
+w0nat=w0sel
 
-fbins_s=np.array(fbins_s)
-fbins_t=np.array(fbins_t)
-mask=range(10,len(f0),10)
+#define model
+proFunc=[
+lambda x: r*x[0],
+lambda x: mu*x[0],
+lambda x: (r+s)*x[1]
+]
+changeVec=np.array([[1,0],[-1,1],[0,1]]).astype(int)
+rxnOrder=np.array([[1,0],[1,0],[0,1]]).astype(int)
+growthmodel=model(proFunc=proFunc,changeVec=changeVec,rxnOrder=rxnOrder)
+solver=tau_leaping(model=growthmodel,eps=0.01)
 
-#calculate fufl
-extmean_interp=itp.interp1d(f0,ext_median-f0)
-fl_ext=opt.root(extmean_interp,0.3).x
-fu_ext=opt.root(extmean_interp,0.8).x
-print(fl_ext,fu_ext)
+selected=[]
+averaged=np.array([])
+averagedGR=np.array([])
+deviated=np.array([])
+deviatedGR=np.array([])
+minGR=np.array([])
+maxGR=np.array([])
+tselect=[]
 
-##vioiline plot
-ax=plt.axes((0.1,0.6,0.5,0.4))
-#ax.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
-#ax.annotate(r'Mutant frequency of the selected Adult $\Psi(f_{k+1}-f_k^*|f_k^*)$',(-0.20,1.05),xycoords='axes fraction')
-ax,_=violinplot_from_histogram(ax,sel_pdf[mask],fbins_s[mask],positions=f0[mask],side='left',width=f0[mask][1]-f0[mask][0],yoffset=f0[mask],color='C0',alpha=0.5,marker=5,showmeans=False)
-ax,_=violinplot_from_histogram(ax,ext_pdf[mask],fbins_t[mask],positions=f0[mask],side='right',width=f0[mask][1]-f0[mask][0],yoffset=f0[mask],color='C1',alpha=0.5,marker=4,showmeans=False)
-#ax.scatter(f0[mask],(sel_median-f0)[mask],c='C0',marker=5)
-#ax.scatter(f0[mask],(ext_median-f0)[mask],c='C1',marker=4)
-ax.hlines(0,0,1,colors='black',ls=':')
-ax.set_xlim(xmin=0,xmax=1)
-ax.set_ylim(ymin=-0.0401,ymax=0.0601)
-ax.set_ylabel(r'$f-f^*_k$')
-ax.set_xlabel(r'Selected mutant frequency in cycle $k$, $f^*_k$')
+for i in range(ncycle):
+	print("Cycle %d"%i)
+	tsel=[] #group,time
+	wsel=[]
+	msel=[]
+	selind=[]
+	tnat=[]
+	wnat=[]
+	mnat=[]
+	for j in range(ncomm):
+		tsel.append(np.array([]))
+		wsel.append(np.array([]))
+		msel.append(np.array([]))
+		tnat.append(np.array([]))
+		wnat.append(np.array([]))
+		mnat.append(np.array([]))
 
-#legend plot
-lx=plt.axes((0.49,0.857,0.1,0.13))
-lxrange=np.arange(-3,3.01,0.03) 
-lpx=[st.norm.pdf(lxrange[:-1])]
-lx,_=violinplot_from_histogram(lx,lpx,lxrange,color='C0',alpha=0.5,side='left',showmeans=False) 
-lx,_=violinplot_from_histogram(lx,lpx,lxrange,color='C1',alpha=0.5,side='right',showmeans=False)
-#lx.axis('off')
-lx.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
-lx.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
-lx.set_xlim(xmin=-0.4,xmax=0.4)
-lx.annotate('Sim',xy=(-0.37,1.9),annotation_clip=False,color='C0') 
-lx.annotate('Th',xy=(0.07,1.9),color='C1') 
+	#growth phase	
+	lastw=[]
+	lastm=[]
+	lastwGR=[]
+	lastmGR=[]
+	for j in range(ncomm):
+
+		#ACS model : Growth, Selection, and Reproduction
+		T,X=solver.run(np.array([w0sel[j],m0sel[j]]),0,tcycle)
+		tsel[j]=np.append(tsel[j],T[:-1]+i*tcycle)	
+		wsel[j]=np.append(wsel[j],X[0,:-1])
+		msel[j]=np.append(msel[j],X[1,:-1])
+	
+		#store for selection
+		lastw.append(X[0,-1])
+		lastm.append(X[1,-1])
+
+		#NS: Growth and Reproduction without selection
+		T,X=solver.run(np.array([w0nat[j],m0nat[j]]),0,tcycle)
+		tnat[j]=np.append(tnat[j],T[:-1]+i*tcycle)	
+		wnat[j]=np.append(wnat[j],X[0,:-1])
+		mnat[j]=np.append(mnat[j],X[1,:-1])
+		
+		lastwGR.append(X[0,-1])
+		lastmGR.append(X[1,-1])
+		
+		m0nat[j]=np.random.binomial(N0,cf(wnat[j][-1],mnat[j][-1],r=r,s=s),size=1)
+		w0nat[j]=N0-m0nat[j]
+	
+	lastw=np.array(lastw)
+	lastm=np.array(lastm)
+	lastwGR=np.array(lastwGR)
+	lastmGR=np.array(lastmGR)
+	cfs=cf(lastwGR,lastmGR)
+	averagedGR=np.append(averagedGR,np.mean(cfs))
+	deviatedGR=np.append(deviatedGR,np.std(cfs))
+	maxGR=np.append(maxGR,np.max(cfs))
+	minGR=np.append(minGR,np.min(cfs))
+	
+	#selection phase
+	ind_sel=select(lastw,lastm,r=r,s=s,rhat=rhat)
+	w_sel=lastw[ind_sel]
+	m_sel=lastm[ind_sel]
+	selind.append(ind_sel)
+	selected.append(cf(w_sel,m_sel,r=r,s=s))
+	cfs=cf(lastw,lastm)
+	averaged=np.append(averaged,np.mean(cfs))
+	deviated=np.append(deviated,np.std(cfs))
+	tselect.append((i+1)*tcycle)
+
+	#save data	
+	fts=open('data/figS/fig2_tsel_%d.dat'%i,'a')
+	fws=open('data/figS/fig2_wsel_%d.dat'%i,'a')
+	fms=open('data/figS/fig2_msel_%d.dat'%i,'a')
+	fsi=open('data/figS/fig2_selind_%d.dat'%i,'a')
+	np.savetxt(fsi,selind)
+	ftn=open('data/figS/fig2_tnat_%d.dat'%i,'a')
+	fwn=open('data/figS/fig2_wnat_%d.dat'%i,'a')
+	fmn=open('data/figS/fig2_mnat_%d.dat'%i,'a')
+	for j in range(ncomm):
+		np.savetxt(fts,tsel[j],newline=' ')
+		fts.write('\n')
+		np.savetxt(fws,wsel[j],newline=' ')
+		fws.write('\n')
+		np.savetxt(fms,msel[j],newline=' ')
+		fms.write('\n')
+		np.savetxt(ftn,tnat[j],newline=' ')
+		ftn.write('\n')
+		np.savetxt(fwn,wnat[j],newline=' ')
+		fwn.write('\n')
+		np.savetxt(fmn,mnat[j],newline=' ')
+		fmn.write('\n')
+	fts.close()
+	fws.close()
+	fms.close()
+	fsi.close()
+	ftn.close()
+	fwn.close()
+	fmn.close()
+	
+	#draw	
+	for j in range(0,ncomm):
+		cfs=cf(wsel[j],msel[j],r=r,s=s)
+		if j==ind_sel:
+			cx.plot(tsel[j],cfs,lw=1,c='black')
+		else:
+			cx.plot(tsel[j],cfs,lw=1,c='black',alpha=0.3)
+		#nx.plot(tsel[j],(wsel[j]+msel[j]),lw=1,c='red')
+	
+	#reproduction phase	
+	#w0sel,m0sel=hypergeometric_reproduce(w_sel,m_sel,N0)	
+	m0sel=np.random.binomial(N0,cf(w_sel,m_sel,r=r,s=s),size=ncomm)
+	m0sel=np.sort(m0sel)
+	w0sel=N0-m0sel
 
 
-formatter='svg'
+'''
+################################
+#data read version
+################################
+tsels=[] #group,time
+wsels=[]
+msels=[]
+selinds=[]
+tnats=[]
+wnats=[]
+mnats=[]
+
+cx=plt.axes((0.10,0.55,0.33,0.33))
+cx.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+selected=[]
+averaged=np.array([])
+averagedGR=np.array([])
+for i in range(ncycle):
+	print("Cycle %d"%i)
+	tsel=[] #group,time
+	wsel=[]
+	msel=[]
+	selind=[]
+	tnat=[]
+	wnat=[]
+	mnat=[]
+
+	fts=open('data/figS/fig2_tsel_%d.dat'%i,'r')
+	lws=open('data/figS/fig2_wsel_%d.dat'%i,'r')
+	fms=open('data/figS/fig2_msel_%d.dat'%i,'r')
+	fsi=open('data/figS/fig2_selind_%d.dat'%i,'r')
+	ind_sel=np.loadtxt(fsi).astype(int)
+	ftn=open('data/figS/fig2_tnat_%d.dat'%i,'r')
+	fwn=open('data/figS/fig2_wnat_%d.dat'%i,'r')
+	fmn=open('data/figS/fig2_mnat_%d.dat'%i,'r')
+
+	#read 
+	for j in range(ncomm):
+		tsel.append(np.array(fts.readline().split(' ')[:-1]).astype(float))
+		wsel.append(np.array(fws.readline().split(' ')[:-1]).astype(float))
+		msel.append(np.array(fms.readline().split(' ')[:-1]).astype(float))
+		tnat.append(np.array(ftn.readline().split(' ')[:-1]).astype(float))
+		wnat.append(np.array(fwn.readline().split(' ')[:-1]).astype(float))
+		mnat.append(np.array(fmn.readline().split(' ')[:-1]).astype(float))
+	
+	#prepare cx2
+	selected.append(cf(wsel[ind_sel][-1],msel[ind_sel][-1],r=r,s=s))
+	wnatnp=np.array([])
+	mnatnp=np.array([])
+	for j in range(ncomm):
+		wnatnp=np.append(wnatnp,wnat[j][-1])
+		mnatnp=np.append(mnatnp,mnat[j][-1])
+	cfs=cf(wnatnp,mnatnp,r=r,s=s)
+	averagedGR=np.append(averagedGR,np.mean(cfs))
+
+	#draw	
+	for j in range(0,ncomm):
+		cfs=cf(wsel[j],msel[j],r=r,s=s)
+		if j==ind_sel:
+			cx.plot(tsel[j],cfs,lw=1,c='black')
+		else:
+			cx.plot(tsel[j],cfs,lw=0.5,c='gray',alpha=0.4)
+'''
+
+cx.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+cx.hlines(rhat,0,ncycle*tcycle,linestyles=':',colors='black')
+cx.set_ylabel(r'F frequency $f$')
+cx.set_xlabel(r'Time $t$')
+cx.set_ylim(ymin=0.02,ymax=0.25)
+cx.annotate(r'$\tau\approx4.8$',xy=(8*tcycle,0.06))
+cx.annotate('',xy=(9*tcycle,0.10),xytext=(10*tcycle,0.10),arrowprops=dict(arrowstyle='->',mutation_scale=10))
+cx.annotate('',xy=(8*tcycle,0.10),xytext=(7*tcycle-0.01,0.10),arrowprops=dict(arrowstyle='->',mutation_scale=10))
+cx.vlines([8*tcycle,9*tcycle],0.09,0.11,linestyles='-',colors='black')
+
+cx2=plt.axes((0.55,0.55,0.33,0.33))
+cx2.annotate('b',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+cx2.set_ylabel(r'F frequency $f$')
+cx2.set_xlabel(r'Cycle $k$')
+cx2.hlines(rhat,0,ncycle,linestyles=':',colors='black')
+k=np.arange(1,ncycle+1)
+cx2.plot(k,selected,marker='^',ms=4,c='black',label=r'$f^*$')
+cx2.plot(k,averagedGR,marker='s',ms=4,c='blue',ls='--',label=r'$\bar{f}_\mathrm{NS}$')
+cx2.legend(fontsize='small',handlelength=1,labelspacing=0.3)
+cx2.set_ylim(ymin=0.05)
+
+formatter='svg' #or 'png'
 plt.savefig('figures/FigS4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
+

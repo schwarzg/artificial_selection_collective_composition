@@ -25,7 +25,7 @@ tcycle=np.log(ncomm+1)/r
 
 from one_step_functions import *
 from custom_plot import *
-
+'''
 ##Load data
 folder="data/cond/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)
 
@@ -43,7 +43,9 @@ ext_mean=np.loadtxt(folder+"_emean.dat")
 
 fbins_t=[]
 fbins_s=[]
+'''
 f0=np.arange(0.00,0.99,0.01)
+'''
 for fsel in f0: 
 	fbins_s.append(np.linspace(np.maximum(0,fsel-0.05),np.minimum(1,fsel+0.05),30))
 	fbins_t.append(np.linspace(np.maximum(0,fsel-0.05),np.minimum(1,fsel+0.05),30))
@@ -56,7 +58,7 @@ mask=[9,49,89]#=range(10,len(f0),10)
 extmean_interp=itp.interp1d(f0,ext_median-f0)
 fl_ext=opt.root(extmean_interp,0.3).x
 fu_ext=opt.root(extmean_interp,0.8).x
-
+'''
 import scipy as sc
 import scipy.optimize as opt
 import scipy.special as spc
@@ -68,13 +70,15 @@ def get_Dfunc(zeta,r,s,mu,ncomm,N0):
 	barc=barc_th_v2(zeta,N0,tcycle,r,mu,s)
 	sig2c=sig2c_th_v2(zeta,varf0,N0,tcycle,r,mu,s)
 	unitnorm=st.norm()
-	phi1=unitnorm.ppf(float(1/ncomm))
+	phi1=unitnorm.ppf(float(np.log(2)/ncomm))
 	phi2=unitnorm.ppf(float(1/(ncomm*np.exp(1))))
-	D=barc+np.sqrt(sig2c)*(phi1-np.log(np.log(2))*(phi2-phi1))-zeta
+	#D=barc+np.sqrt(sig2c)*(phi1-np.log(np.log(2))*(phi2-phi1))-zeta
+	D=barc+np.sqrt(sig2c)*(phi1)-zeta
 	return D
 
 zetas=np.arange(0,1,0.01)
 Ds=get_Dfunc(zetas,r,s,mu,ncomm,N0)
+Ds0=get_Dfunc(zetas,r,s,0,ncomm,N0)
 #plt.plot(zetas,Ds)
 #plt.show()
 
@@ -97,13 +101,14 @@ ax.set_ylim(ymin=-0.018,ymax=0.018)
 ax.set_ylabel(r'$\mathbf{f^*_{k+1}-f^*_k}$')
 ax.set_xlabel(r"Selected mutant frequency in cycle $\mathbf{k}$, $\mathbf{f^*_k}$")
 
-ax.plot(f0,sel_median-f0,c='C0',label='Simulation')
-ax.plot(f0,ext_median-f0,c='C1',label='Theory')
+#ax.plot(f0,sel_median-f0,c='C0',label='Simulation')
+#ax.plot(f0,ext_median-f0,c='C1',label='Theory')
 ax.plot(zetas,Ds,label=r'$D(\zeta)$',c='C2')
+ax.plot(zetas,Ds0,label=r'$D(\zeta)$',c='C3')
 ax.legend(frameon=False)
-ax.vlines([fl_ext,fu_ext],-0.05,0.05,colors='black',ls='--')
-ax.annotate(r'$\mathbf{f^L}$',xy=(fl_ext,-0.0215),xytext=(fl_ext-0.1,-0.019),arrowprops=dict(arrowstyle='->'))
-ax.annotate(r'$\mathbf{f^U}$',xy=(fu_ext,-0.022),xytext=(fu_ext+0.06,-0.019),arrowprops=dict(arrowstyle='->'))
+#ax.vlines([fl_ext,fu_ext],-0.05,0.05,colors='black',ls='--')
+#ax.annotate(r'$\mathbf{f^L}$',xy=(fl_ext,-0.0215),xytext=(fl_ext-0.1,-0.019),arrowprops=dict(arrowstyle='->'))
+#ax.annotate(r'$\mathbf{f^U}$',xy=(fu_ext,-0.022),xytext=(fu_ext+0.06,-0.019),arrowprops=dict(arrowstyle='->'))
 
 '''#distribution box plot
 bx=plt.axes((0.1,0.38,0.5,0.35))
@@ -255,5 +260,5 @@ cx3.set_xlim(xmin=0,xmax=1)
 cx3.axis('off')
 '''
 formatter='svg'
-plt.savefig('figures/Fig4_D.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/Fig4_D_nomut.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()

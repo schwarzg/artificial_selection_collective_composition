@@ -8,14 +8,14 @@ import os,sys
 #import matplotlib.pyplot as plt
 
 #Model parameter
-mu=1e-4
+mu=0#1e-4
 r=0.5
 s=3e-2
 N0=1000
 mbar=200
 ncomm=100
 rhat=0.1
-nensemble=20
+nensemble=30
 ncycle=1000
 tcycle=np.log(ncomm+1)/r
 

@@ -5,78 +5,86 @@ plt.rcParams["axes.labelweight"] = "bold"
 plt.rcParams['mathtext.fontset'] = 'custom'
 plt.rcParams['mathtext.it'] = 'DejaVu Sans:italic:bold'
 plt.rcParams['mathtext.bf'] = 'DejaVu Sans:italic:bold'
+import time
+import scipy.interpolate as itp
+import scipy.optimize as opt
+import sys
 
-
-from analytic_results import *
-
+sys.setrecursionlimit(10000)
+#parameter prepare
 mu=1e-4
 r=0.5
 s=3e-2
 N0=1000
 mbar=100
 ncomm=10
-rhat=0.05
-nens=300
+rhat=0
+nens= 300 # 1000 for +, 300 for -
 ncycle=10
 tcycle=np.log(ncomm+1)/r
 
-def get_f(w,m):
-	return np.divide(m,w+m)
+from one_step_functions import *
+from custom_plot import *
 
-barN02=[]
-sigw2=[]
-sigm2=[]
-sigf2=[]
-N0s= np.arange(500,5000,100)[::-1]
-for N0 in N0s:
-	m0=int(N0*0.3)#np.clip(np.random.poisson(200,size=nens),0,1000)
-	w0=N0-m0
-	c0=get_f(w0,m0)
-	barw=barw_th(np.mean(w0),tcycle,r,mu)	
-	sig2w=sig2w_th(np.mean(w0),np.var(w0),tcycle,r,mu)
-	barm=barm_th(np.mean(m0),np.mean(w0),tcycle,r,mu,s)
-	sig2m=sig2m_th(np.mean(m0),np.var(m0),np.mean(w0),np.var(w0),-np.var(m0),tcycle,r,mu,s)	
-	sig2c=sig2c_th_v2(np.mean(c0),np.var(c0),N0,tcycle,r,mu,s)
+##Load data
+folder="data/cond/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)
 
-	barN02.append((barw+barm)**2)
-	sigw2.append(sig2w)
-	sigm2.append(sig2m)
-	sigf2.append(sig2c)
+#Simulation
+sel_pdf=np.loadtxt(folder+"_sel.dat")
+sel_median=np.loadtxt(folder+"_smedian.dat")
+sel_mean=np.loadtxt(folder+"_smean.dat")
 
-#ax=plt.axes((0.1,0.1,0.3,0.3))
-#bx=plt.axes((0.53,0.1,0.3,0.3))
-'''
-ax.plot(N0s,sigw2,label=r'$\sigma_w^2(\tau)$')	
-ax.plot(N0s,sigm2,label=r'$\sigma_m^2(\tau)$')
-ax.plot([1500,3000],[45000,90000],ls=':',c='black')
-ax.annotate(r'$\sim N_0$',(2000,45000))
-ax.set_xlabel(r'Newborn collective size $N_0$')	
-ax.set_ylabel(r'Variances')	
-ax.set_xscale('log')
-ax.set_yscale('log')
-ax.legend(frameon=False,handlelength=0.7)
-ax.set_xticks([500,1000,5000])
-ax.set_xticklabels([500,1000,5000])
-bx.plot(N0s,barN02)	
-bx.plot([1500,3000],[150000000,600000000],ls=':',c='black')
-bx.annotate(r'$\sim N_0^2$',(2000,150000000))
-bx.set_xscale('log')
-bx.set_yscale('log')
-bx.set_xlabel(r'Newborn collective size $N_0$')	
-bx.set_ylabel(r'$\overline{N}(\tau)^2$')	
-bx.set_xticks([500,1000,5000])
-bx.set_xticklabels([500,1000,5000])
-'''
-cx=plt.axes((0.96,0.1,0.3,0.3))
-cx.plot(1/N0s,sigf2)	
-cx.plot([1/500,1/1000],[0.00016,0.00008],ls=':',c='black')
-cx.annotate(r'$\sim 1/N_0$',(1/1000,0.00012))
-cx.set_xscale('log')
-cx.set_yscale('log')
-cx.set_xlabel(r'Newborn collective size $1/N_0$')	
-cx.set_ylabel(r'$\sigma_f^2(\tau)$')	
-cx.set_xticks([1/1000,1/5000])
-cx.set_xticklabels(['1/1000','1/5000'])
+#Theory
+ext_pdf=np.loadtxt(folder+"_ext.dat")
+ext_median=np.loadtxt(folder+"_emedian.dat")
+ext_mean=np.loadtxt(folder+"_emean.dat")
+
+fbins_t=[]
+fbins_s=[]
+f0=np.arange(0.00,0.99,0.01)
+for fsel in f0: 
+	#print("Frequency ",fsel)
+	fbins_s.append(np.linspace(np.maximum(0,fsel-0.05),np.minimum(1,fsel+0.05),30))
+	fbins_t.append(np.linspace(np.maximum(0,fsel-0.05),np.minimum(1,fsel+0.05),30))
+
+fbins_s=np.array(fbins_s)
+fbins_t=np.array(fbins_t)
+mask=range(10,len(f0),10)
+
+#calculate fufl
+extmean_interp=itp.interp1d(f0,ext_median-f0)
+fl_ext=opt.root(extmean_interp,0.3).x
+fu_ext=opt.root(extmean_interp,0.8).x
+print(fl_ext,fu_ext)
+
+##vioiline plot
+ax=plt.axes((0.1,0.6,0.5,0.4))
+#ax.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+#ax.annotate(r'Mutant frequency of the selected Adult $\Psi(f_{k+1}-f_k^*|f_k^*)$',(-0.20,1.05),xycoords='axes fraction')
+ax,_=violinplot_from_histogram(ax,sel_pdf[mask],fbins_s[mask],positions=f0[mask],side='left',width=f0[mask][1]-f0[mask][0],yoffset=f0[mask],color='C0',alpha=0.5,marker=5,showmeans=False)
+ax,_=violinplot_from_histogram(ax,ext_pdf[mask],fbins_t[mask],positions=f0[mask],side='right',width=f0[mask][1]-f0[mask][0],yoffset=f0[mask],color='C1',alpha=0.5,marker=4,showmeans=False)
+#ax.scatter(f0[mask],(sel_median-f0)[mask],c='C0',marker=5)
+#ax.scatter(f0[mask],(ext_median-f0)[mask],c='C1',marker=4)
+ax.hlines(0,0,1,colors='black',ls=':')
+ax.set_xlim(xmin=0,xmax=1)
+ax.set_ylim(ymin=-0.0401,ymax=0.0601)
+ax.set_ylabel(r'$f_{k+1}^*-f^*_k$')
+ax.set_xlabel(r'Selected F frequency in cycle $k$, $f^*_k$')
+
+#legend plot
+lx=plt.axes((0.49,0.857,0.1,0.13))
+lxrange=np.arange(-3,3.01,0.03) 
+lpx=[st.norm.pdf(lxrange[:-1])]
+lx,_=violinplot_from_histogram(lx,lpx,lxrange,color='C0',alpha=0.5,side='left',showmeans=False) 
+lx,_=violinplot_from_histogram(lx,lpx,lxrange,color='C1',alpha=0.5,side='right',showmeans=False)
+#lx.axis('off')
+lx.tick_params(axis='x',which='both',bottom=False,top=False,labelbottom=False)
+lx.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
+lx.set_xlim(xmin=-0.4,xmax=0.4)
+lx.annotate('Sim',xy=(-0.37,1.9),annotation_clip=False,color='C0') 
+lx.annotate('Th',xy=(0.07,1.9),color='C1') 
+
+
 formatter='svg'
 plt.savefig('figures/FigS5.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()

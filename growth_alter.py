@@ -4,6 +4,8 @@ from analytic_results import *
 import scipy.stats as st
 
 def growth_sampling_m(m0,sig2m0,w0,sig2w0,covwm0,t,r,mu,s,nsample=1):
+	if m0<1e-8:
+		return np.zeros(nsample)
 	mt=barm_th(m0,w0,t,r,mu,s)
 	sig2mt=sig2m_th(m0,sig2m0,w0,sig2w0,covwm0,t,r,mu,s)
 	rv=st.truncnorm(-mt/np.sqrt(sig2mt),np.inf,loc=mt,scale=np.sqrt(sig2mt))

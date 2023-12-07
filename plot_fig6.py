@@ -38,7 +38,7 @@ def draw_mutation(ax,x,y,cl='r',cr='b',scale=1):
     return ax
 
 rx1=0
-ry1=0
+3,ry1=0
 
 mx.annotate(r'Reactions',xy=(rx1,ry1+2.),ha='left',va='center')
 mx.annotate(r'Rates',xy=(rx1+6.5,ry1+2.),ha='left',va='center')
