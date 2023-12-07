@@ -254,5 +254,5 @@ cx3.set_xlim(xmin=0,xmax=1)
 cx3.axis('off')
 '''
 formatter='svg'
-#plt.savefig('figures/Fig4_D_nomut.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/Fig4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()

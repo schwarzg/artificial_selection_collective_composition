@@ -52,30 +52,35 @@ Reproduction: Binomial sampling of N0 cells based on the selected collective.
 
 ## Plotting code
 1. `plot_fig2.py`
-	+ Draw evolution of collectives' frequencies in fig2. Includes code to generate stochastic simulation data for Fig 2a,2b
-	+ Input data file: `"%s_%d_%s_%s_%s_%s_%s_AGS_nens%d.cycle_v2"%(N0,mbar,r,s,mu,ncomm,rhat,nens)`
+	+ Input data folder: `"AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle)` 
 	+ Requirements : `gillespie/model.py, gillespie/tau_leaping.py, selection.py`
 1. `plot_fig3.py` 
-	+ Draw successful region diagram in Fig3.
-	+ The boundary value is obtained from plot\_fig4.py
+	+ Draw conditional probabilities and boxplot in Fig4.
+	+ Input data folder: `"data/one/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)`
 1. `plot_fig4.py`
-	+ Draw conditional probabilities in Fig4.
-	+ Input data file: `"data/one/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)`
+	+ Draw successful region diagram in Fig4.
+	+ Input data folder: `"data/one/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)`
 1. `plot_fig5.py`
-	+ Draw successful region diagram in Fig5.
-	+ Input data file: `"data/one/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)`
-1. `plot_fig6.py`
-	+ Draw schematic figures and ternary diagram in Fig6.
+	+ Draw schematic figures and ternary diagram in Fig5
+	+ Input data : `"data/raw/AGS_PD_sto_N0%s_mbar%s_vbar%s_r%s_s%s_mu%s_ncomm%s_mhat%s_vhat%s_ncycle%d%d.cycle"%(N0,m0,v0,r,s,mu,ncomm,mhat,vhat,ncycle,e)`
+
 1. `plot_figS3.py`
-	+ Draw heatmap of relative error in FigS3.
-	+ Input data file: `"data/ens/N0%s_r%s_s%s_mu%s_g%s_ncycle%d_diagram_fig2.txt"%(N0,r,s,mu,ncomm,ncycle)`
+	+ Draw heatmap of absolute error in FigS3. FigS7 is also drawn with this code.
+	+ Input data file: `"data/ens/N0%s_r%s_s%s_mu%s_g%s_ncycle%d_diagram_abs.txt"%(N0,r,s,mu,ncomm,ncycle)`
 1. `plot_figS4.py`
-	+ Draw conditional probability distribution  
-	+ Input data file: `"data/one/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)`
+	+ Draw trajectories in FigS4.
 1. `plot_figS5.py`
-	+ Draw conditional probability distribution  
+	+ Draw conditional probability distribution violin plot 
 	+ Input data file: `"data/one/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)`
 1. `plot_figS6.py`
+	+ Draw proportionality of variance to Newborn size.
+1. `plot_figS8.py`
+	+ Draw trajectories of top and top5% tactics in FigS8.
+	+ Inpot data: `"data/ens/AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle)`
+	+ Inpot data: `"data/ens/AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_nsel%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,nsel,rhat,ncycle)`
+1. `plot_figS9.py`
+	+ Draw conditional probability, and heatmap when deletereious mutation
+1. `plot_figS10.py`
 	+ Draw the schematics to get conditional extreme value distribution in three-type population, computed accessible region, and the simulation results in ternary plot
 	+ Input data file: `"data/raw/AGS_PD_sto_N0%s_mbar%s_vbar%s_r%s_s%s_mu%s_ncomm%d_mhat%s_vhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,mhat,vhat,ncycle)`
 

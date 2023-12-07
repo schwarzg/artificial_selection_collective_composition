@@ -341,6 +341,6 @@ ex3.set_xlim(xmin=0,xmax=1)
 ex3.axis('off')
 
 formatter='svg' #or 'png'
-#plt.savefig('figures/Fig2_v2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/Fig2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 
