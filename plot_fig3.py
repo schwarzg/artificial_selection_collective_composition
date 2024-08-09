@@ -95,9 +95,9 @@ ax.set_ylim(ymin=-0.018,ymax=0.018)
 ax.set_ylabel(r'$\mathbf{f^*_{k+1}-f^*_k}$')
 ax.set_xlabel(r"Selected mutant frequency in cycle $\mathbf{k}$, $\mathbf{f^*_k}$")
 
-ax.plot(f0,sel_median-f0,c='C0',label='Simulation')
-ax.plot(f0,ext_median-f0,c='C1',label='Equation[1]')
-ax.plot(zetas,Ds,label=r'$Equation[2]$',c='C2')
+ax.plot(1-f0,-(sel_median-f0),c='C0',label='Simulation')
+ax.plot(1-f0,-(ext_median-f0),c='C1',label='Equation[1]')
+ax.plot(1-zetas,-Ds,label=r'$Equation[2]$',c='C2')
 #ax.plot(zetas,Ds0,label=r'$D(\zeta)$',c='C3')
 ax.legend(frameon=False)
 #ax.vlines([fl_ext,fu_ext],-0.05,0.05,colors='black',ls='--')
@@ -116,7 +116,7 @@ idx2=49
 idx3=89
 bx.hlines(0,0,1,colors='black',ls=':')
 c=['#17becf','#9467bd','black']
-boxes=bx.boxplot([sim_raw[idx1]-f0[idx1],sel_raw[idx1]-np.mean(sim_raw[idx1]),sel_raw[idx1]-f0[idx1]],positions=[0.04,0.1,0.16],widths=0.05,sym='')
+boxes=bx.boxplot([-sim_raw[idx1]+f0[idx1],-sel_raw[idx1]+np.mean(sim_raw[idx1]),-sel_raw[idx1]+f0[idx1]],positions=[0.04,0.1,0.16],widths=0.05,sym='')
 for box,med,col in zip(boxes['boxes'],boxes['medians'],c):
 	box.set_color(col)
 	med.set_color(col)
@@ -254,5 +254,5 @@ cx3.set_xlim(xmin=0,xmax=1)
 cx3.axis('off')
 '''
 formatter='svg'
-plt.savefig('figures/Fig4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+#plt.savefig('figures/Fig4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()

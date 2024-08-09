@@ -69,9 +69,33 @@ bx.set_ylabel(r'$\overline{N}(\tau)^2$')
 bx.set_xticks([500,1000,5000])
 bx.set_xticklabels([500,1000,5000])
 '''
-cx=plt.axes((0.96,0.1,0.3,0.3))
+bx=plt.axes((0.1,0.1,0.3,0.3))
+bx.annotate('a',(-0.1,1.05),xycoords='axes fraction',fontweight='bold')
+
+from analytic_results import barc_th_v2,sig2c_th_v2
+
+f0s = np.arange(0,1+0.01*0.5,0.01)
+barcs=[]
+sig2cs=[]
+for f0 in f0s:
+    barc=barc_th_v2(f0,N0,tcycle,r,mu,s)
+    barcs.append(barc)
+    sig2c=sig2c_th_v2(f0,f0*(1-f0)/N0,N0,tcycle,r,mu,s)
+    sig2cs.append(sig2c)
+
+bx.plot(f0s,barcs-f0s,label=r"$\bar{f}_{k+1}-f^*_k$")
+bx.plot(f0s,np.sqrt(sig2cs),label=r"$\sigma_{{f}_{k+1}}$")
+
+bx.set_xlabel(r"Selected F frequency  $f^*_k$")
+#bx.set_ylabel(r"$\bar{f}_{k+1}-f^*_k$")
+#bx.set_ylabel(r"$\sigma_{{f}_{k+1}}$")
+bx.set_ylabel(r"Values in frequency $f$")
+bx.legend(frameon=False)
+
+cx=plt.axes((0.55,0.1,0.3,0.3))
+cx.annotate('b',(-0.1,1.05),xycoords='axes fraction',fontweight='bold')
 cx.plot(1/N0s,sigf2)	
-cx.plot([1/500,1/1000],[0.00016,0.00008],ls=':',c='black')
+cx.plot([1/1000,1/2000],[0.00016,0.00008],ls=':',c='black')
 cx.annotate(r'$\sim 1/N_0$',(1/1000,0.00012))
 cx.set_xscale('log')
 cx.set_yscale('log')
@@ -80,5 +104,5 @@ cx.set_ylabel(r'$\sigma_f^2(\tau)$')
 cx.set_xticks([1/1000,1/5000])
 cx.set_xticklabels(['1/1000','1/5000'])
 formatter='svg'
-#plt.savefig('figures/FigS6.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/FigS6.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()

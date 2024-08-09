@@ -83,6 +83,32 @@ lx.tick_params(axis='y',which='both',left=False,right=False,labelleft=False)
 lx.set_xlim(xmin=-0.4,xmax=0.4)
 lx.annotate('Sim',xy=(-0.37,1.9),annotation_clip=False,color='C0') 
 lx.annotate('Th',xy=(0.07,1.9),color='C1') 
+'''
+#fig B
+bx=plt.axes((0.72,0.6,0.5,0.4))
+bx.annotate('b',(-0.1,1.05),xycoords='axes fraction',fontweight='bold')
+
+from analytic_results import barc_th_v2,sig2c_th_v2
+
+f0s = np.arange(0,1+0.01*0.5,0.01)
+barcs=[]
+sig2cs=[]
+for f0 in f0s:
+    barc=barc_th_v2(f0,N0,tcycle,r,mu,s)
+    barcs.append(barc)
+    sig2c=sig2c_th_v2(f0,f0*(1-f0)/N0,N0,tcycle,r,mu,s)
+    sig2cs.append(sig2c)
+
+bx.plot(f0s,barcs-f0s,label=r"$\bar{f}_{k+1}-f^*_k$")
+bx.plot(f0s,np.sqrt(sig2cs),label=r"$\sigma_{{f}_{k+1}}$")
+
+bx.set_xlabel(r"Selected F frequency  $f^*_k$")
+#bx.set_ylabel(r"$\bar{f}_{k+1}-f^*_k$")
+#bx.set_ylabel(r"$\sigma_{{f}_{k+1}}$")
+bx.set_ylabel(r"Values in frequency $f$")
+bx.legend(frameon=False)
+'''
+
 
 
 formatter='svg'

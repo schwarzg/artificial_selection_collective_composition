@@ -76,12 +76,12 @@ for idx,mbar in enumerate(mbars):
 	T=np.arange(len(choavg))+1
 	
 	#cx3.plot(T,choavg,marker='o',ms=3,lw=1,label=r'$\hat{f}=%s$'%rhat,c=cset2[idx])
-	ax.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(4))#,c=cset2[idx])
+	ax.plot(T,1-choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(4))#,c=cset2[idx])
 	#cx3.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='^',)#,c=cset2[idx])
 	#cx3.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
-ax.hlines(rhat,0,len(T),ls=':',colors='C%d'%(4))
-ax.hlines(fu,len(T)-700,len(T),ls='-',colors='black')
-ax.hlines(fl,len(T)-700,len(T),ls='--',colors='black')
+ax.hlines(1-rhat,0,len(T),ls=':',colors='C%d'%(4))
+ax.hlines(1-fu,len(T)-700,len(T),ls='-',colors='black')
+ax.hlines(1-fl,len(T)-700,len(T),ls='--',colors='black')
 
 rhat=0.5
 mbars=[0,600,950]
@@ -95,12 +95,12 @@ for idx,mbar in enumerate(mbars):
 	T=np.arange(len(choavg))+1
 	
 	#cx3.plot(T,choavg,marker='o',ms=3,lw=1,label=r'$\hat{f}=%s$'%rhat,c=cset2[idx])
-	bx.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(2))#,c=cset2[idx])
+	bx.plot(T,1-choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(2))#,c=cset2[idx])
 	#cx3.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='^',)#,c=cset2[idx])
 	#cx3.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
-bx.hlines(rhat,0,len(T),ls=':',colors='C%d'%(2))
-bx.hlines(fu,len(T)-700,len(T),ls='-',colors='black')
-bx.hlines(fl,len(T)-700,len(T),ls='--',colors='black')
+bx.hlines(1-rhat,0,len(T),ls=':',colors='C%d'%(2))
+bx.hlines(1-fu,len(T)-700,len(T),ls='-',colors='black')
+bx.hlines(1-fl,len(T)-700,len(T),ls='--',colors='black')
 
 rhat=0.1
 mbars=[0,250,450,950]
@@ -114,7 +114,7 @@ for idx,mbar in enumerate(mbars):
 	T=np.arange(len(choavg))+1
 	
 	#cx3.plot(T,choavg,marker='o',ms=3,lw=1,label=r'$\hat{f}=%s$'%rhat,c=cset2[idx])
-	cx.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='black')#'C%d'%(3))#,c=cset2[idx])
+	cx.plot(T,1-choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='black')#'C%d'%(3))#,c=cset2[idx])
 	#cx3.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='^',)#,c=cset2[idx])
 	#cx3.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
 
@@ -145,10 +145,10 @@ for i in range(nens):
 c_cho=cf(w_cho,m_cho)
 T=np.arange(len(choavg))+1
 for e in [0,2, 35]:#,62, 76]:
-	cx.plot(T,c_cho[e],c='grey',alpha=0.5)
-cx.hlines(rhat,0,len(T),ls=':',colors='C%d'%(3))
-cx.hlines(fu,len(T)-700,len(T),ls='-',colors='black')
-cx.hlines(fl,len(T)-700,len(T),ls='--',colors='black')
+	cx.plot(T,1-c_cho[e],c='grey',alpha=0.5)
+cx.hlines(1-rhat,0,len(T),ls=':',colors='C%d'%(3))
+cx.hlines(1-fu,len(T)-700,len(T),ls='-',colors='black')
+cx.hlines(1-fl,len(T)-700,len(T),ls='--',colors='black')
 
 ax.set_ylim(ymin=0,ymax=1)
 ax.set_xlabel(r'Cycle $k$')
@@ -182,7 +182,7 @@ print(dat)
 
 
 
-rhats=[0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1.0]
+rhats=np.array([0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1.0])
 mbars=np.array([0,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000])/N0
 
 #dx=plt.axes((0.1,0.1,0.5,0.5))
@@ -191,7 +191,7 @@ frange=np.arange(0.1,1.0,0.1)
 #oldgrey=mpl.cm.get_cmap('Greys_r')
 #newgrey=mpl.colors.ListedColormap(oldgrey(np.linspace(0.7,1,3)))
 newgrey=mpl.colors.ListedColormap(['#d8b365ff','#5ab4acff','#b4b4b4ff'])
-heatmap=dx.pcolormesh(rhats,mbars,dat,cmap=newgrey,shading='flat')
+heatmap=dx.pcolormesh(1-rhats,1-mbars,dat,cmap=newgrey,shading='flat')
 heatmap.set_clim(0,3)
 cbar=plt.colorbar(heatmap,extend='max',ticks=[0,1,2])
 cbar.set_label(r'Relative error $(f^*_{1000}-\hat{f})/\hat{f}$')
@@ -205,9 +205,9 @@ fl=0.28580445	#obtained from Fig4
 fu=0.68687363
 #dx.fill_between([0,fl],[fl,fl],color='lightgray',alpha=0.5)
 #dx.fill_between([0,1],[1,1],[fu,fu],color='lightgray',alpha=0.5)
-dx.hlines(fl,0,fl,colors='black',ls='--')
-dx.vlines(fl,0,fl,colors='black',ls='--')
-dx.hlines(fu,0,1,colors='black',ls='-')
+dx.hlines(1-fl,1-fl,1,colors='black',ls='--')
+dx.vlines(1-fl,1-fl,1,colors='black',ls='--')
+dx.hlines(1-fu,0,1,colors='black',ls='-')
 dx.annotate(r'$\mathbf{f^L}$',weight='bold',xy=(0,fl),xytext=(0.10,fl+0.10),arrowprops=dict(arrowstyle='->'))
 dx.annotate(r'$\mathbf{f^L}$',weight='bold',xy=(fl,0),xytext=(fl+0.10,0.10),arrowprops=dict(arrowstyle='->'))
 dx.annotate(r'$\mathbf{f^U}$',weight='bold',xy=(0,fu),xytext=(0.10,fu-0.10),arrowprops=dict(arrowstyle='->'))

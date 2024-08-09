@@ -83,8 +83,8 @@ N0=1000
 m0=85
 v0=5
 ncomm=10
-mhat=0.01
-vhat=0.01
+mhat=0.02
+vhat=0.09
 nensemble=30
 ncycle=30
 tcycle=np.log(ncomm+1)/r
@@ -95,8 +95,13 @@ if len(sys.argv)!=1:
 	mhat=float(sys.argv[3])
 	vhat=float(sys.argv[4])
 
-descriptor="AGS_PD_sto_N0%s_mbar%s_vbar%s_r%s_s%s_mu%s_ncomm%d_mhat%s_vhat%s_ncycle%d"%(N0,m0,v0,r,s,mu,ncomm,mhat,vhat,ncycle)
+descriptor="AGS_PD_sto_N0%s_mbar%s_vbar%s_r%s_s%s_mu%s_ncomm%d_mhat%s_vhat%s_ncycle%d/"%(N0,m0,v0,r,s,mu,ncomm,mhat,vhat,ncycle)
 folder="data/raw/"+descriptor
+
+import os
+if not os.path.exists('./'+folder):
+    os.system('mkdir '+folder)
+
 
 '''
 import argparse
