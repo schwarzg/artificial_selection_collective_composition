@@ -50,7 +50,7 @@ dt,dl,dr=dfdt_vec((t,l,R))
 
 length=np.sqrt(dl**2+dr**2+dt**2)
 
-data=np.loadtxt("N0%d_r%s_s%s_mu%s_ext_means.dat"%(N0,r,s,mu))
+data=np.loadtxt("N0%d_r%s_s%s_mu%s_ext_means_fine.dat"%(N0,r,s,mu))
 scale=1
 fms=data[:,0]
 fvs=data[:,1]
@@ -79,9 +79,89 @@ for i,fm in enumerate(fms):
 		dscore[i]=1
 	else:
 		dscore[i]=0
+
+import scipy.interpolate as itp
+import scipy.optimize as opt
+from one_step_functions import *
+from custom_plot import *
+#Estimated boundary from 2species problem
+#define D function
+def get_Dfunc(zeta,r,s,mu,ncomm,N0):
+	varf0=zeta*(1-zeta)/N0
+	barc=barc_th_v2(zeta,N0,tcycle,r,mu,s)
+	sig2c=sig2c_th_v2(zeta,varf0,N0,tcycle,r,mu,s)
+	unitnorm=st.norm()
+	phi1=unitnorm.ppf(float(np.log(2)/ncomm))
+	phi2=unitnorm.ppf(float(1/(ncomm*np.exp(1))))
+	#D=barc+np.sqrt(sig2c)*(phi1-np.log(np.log(2))*(phi2-phi1))-zeta
+	D=barc+np.sqrt(sig2c)*(phi1)-zeta
+	return D
+
+zetas=np.arange(0,1,0.01)
+#ss=np.arange(0.02830,0.060005,0.00001)
+a=np.arange(0,1.005,0.01)
+ss=0.56*0.5/(0.5+a*0.03)-0.5
+print('ss',ss)
+fls=[]
+fus=[]
+lastloss=None
+for aa in a:
+    Ds=get_Dfunc(zetas,r+aa*s,(2-aa)*s,mu,ncomm,N0)
+    extmean_interp=itp.interp1d(zetas,Ds)
+    #plt.plot(zetas,Ds)
+    #plt.hlines(0,1,0)
+    #plt.show()
+    
+    solved=False
+    lsolve=False
+    usolve=False
+    sl=0.3
+    su=0.7
+    fl_th=None
+    fu_th=None
+    while not solved:
+        if not np.sum(Ds[:1]*Ds[1:]<0): # no passing 
+            fls.append(None)
+            fus.append(None)
+            solved=True
+            #print(s,' is solutionless')
+            lastloss=s
+            continue
+        if not lsolve:
+            try:
+                fl_th=opt.root(extmean_interp,sl).x
+            except:
+                sl=max(sl-0.05,0)
+            else:
+                fls.append(fl_th[0])
+                lsolve=True
+
+        if not usolve:
+            try:
+                fu_th=opt.root(extmean_interp,su).x
+            except:
+                su=min(su+0.05,1)
+            else:
+                fus.append(fu_th[0])
+                usolve=True
+        solved=usolve and lsolve
+#print('fls',fls,'\nfus',fus)
+
+fls=np.array(fls)
+fus=np.array(fus)
+
+sls=(1-a)-np.multiply((1-a),fls)
+flls=1-fls-sls
+
+sus=(1-a)-np.multiply((1-a),fus)
+fuus=1-fus-sus
+
+
+
 import matplotlib as mpl
 oldgrey=mpl.cm.get_cmap('Greys')
-newgrey=mpl.colors.ListedColormap(oldgrey(np.linspace(0,0.5,3)))
+#newgrey=mpl.colors.ListedColormap(oldgrey(np.linspace(0,0.5,3)))
+newgrey=mpl.colors.ListedColormap(['white','#d8b365ff'])#['#b4b4b4ff','#d8b365ff'])#oldgrey(np.linspace(0,0.5,3)))
 tc=ax.tripcolor(fvs,fws,fms,dscore,shading='gouraud',rasterized=True,cmap=newgrey)
 
 qv=ax.quiver(t,l,R,dt,dl,dr,length)
@@ -100,6 +180,10 @@ ax.raxis.set_ticks_position('tick1')
 ax.taxis.set_label_position('tick1')
 ax.laxis.set_label_position('tick1')
 ax.raxis.set_label_position('tick1')
+
+ax.plot(fls,sls,flls,ls='--')
+ax.plot(fus,sus,fuus,ls='--')
+
 #######################
 # Schematic explanation of how to get the region
 #######################
@@ -398,6 +482,6 @@ cx33.annotate('k',xy=(-0.1,1.05),xycoords='axes fraction',weight='bold')
 cx33=Draw_triangle_from_data(cx33,50,900,[0.02],[0.9])
 '''
 formatter='svg'
-#plt.savefig('figures/FigS9.'+formatter,bbox_inches='tight',dpi=300,format=formatter)
+plt.savefig('figures/FigS9_v2.'+formatter,bbox_inches='tight',dpi=300,format=formatter)
 plt.show()
 

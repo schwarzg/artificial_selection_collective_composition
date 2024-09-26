@@ -306,6 +306,19 @@ cx3.taxis.set_ticks([])
 cx3.raxis.set_ticks([])
 cx3.laxis.set_ticks([])
 
+#Draw effective rest-of-system line
+d=0.01
+ffs=np.arange(0,1+0.5*d,d)
+
+for a in np.arange(0.2,1,0.2):
+    ss=(1-a)-(1-a)*ffs
+    fs=1-ffs-ss
+
+    cx2.plot(ffs,ss,fs,alpha=0.4,color='black',ls='--')
+
+
+
+
 formatter='svg'
 #plt.tight_layout()
 plt.savefig('figures/Fig5_v3_fine.'+formatter,bbox_inches='tight',dpi=300,format=formatter)

@@ -164,7 +164,7 @@ ax.plot(N0s,fls2,c='C0',label='Sim,$f^L$',marker='v',ms=4,ls='--')
 ax.plot(N0s,fle2,c='C1',label='Th,$f^L$',marker='^',ms=4,ls='--')
 ax.fill_between(N0s,fle2,shadedw,color='lightgray')
 ax.set_xscale('log')
-ax.set_xlim(xmin=500,xmax=6000)
+ax.set_xlim(xmin=300,xmax=6000)
 ax.fill_between([1,700],[1.1,1.1],color='lightgray')
 ax.set_ylabel(r'Target Frequency $\hat{f}$')
 ax.set_xlabel(r'Newborn collective size $N_0$')
@@ -193,7 +193,22 @@ bx.set_xticks([5,10,50,100])
 bx.set_xticklabels([5,10,50,100])
 bx.set_xlim(4,100)
 
+def N0_allsuccess():
+    b=0.5
+    R=np.exp(r*tcycle)
+    W=np.exp(s*tcycle)
+    E=-1.48
+    bunja=E**2*(b*R*W**2+W*(R*W-1)+mu/s*(2*s/(r+2*s)*R*W**2-W+r/(r+2*s))+(W+mu/s*(W-1)**2)*(b*R+R-1))
+    bunmo=R*b**3*(1+W+mu/s*(W-1))**2*(1-(W+mu/s*(W-1)))**2
+    return bunja/bunmo
+
+N0bound=N0_allsuccess()
+
+ax.vlines(N0bound,0,1,colors='C2',ls=':')
+ax.annotate(r'$\breve{N_0}$',(0.3,0.5),xycoords='axes fraction')
+
+
 formatter='svg' #or png
-#plt.savefig('figures/Fig5.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/Fig4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 
