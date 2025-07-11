@@ -382,6 +382,6 @@ cx.set_xlim(ts[0],ts[-1])
 #cx.set_xticks([5,10,50,100])
 #cx.set_xticklabels([5,10,50,100])
 formatter='svg' #or png
-plt.savefig('figures/Fig4_fix2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+#plt.savefig('figures/Fig4_fix2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 

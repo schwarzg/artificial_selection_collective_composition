@@ -21,10 +21,10 @@ mu=1e-4
 r=0.5
 s=3.0e-2
 N0=1000
-mbar=50
-ncomm=10
-rhat=0.15
-
+mbar=150
+ncomm=100
+rhat=0.10
+nsel=5
 tcycle=np.log(ncomm+1)/r
 
 
@@ -50,39 +50,51 @@ cset2=[
 '#1F77B4','#0D89E0','#273E4F'
 ]
 
-fl=0.28615573	#obtained from Fig4
-fu=0.76122767
+#fl=0.28580445	#obtained from Fig4
+#fu=0.68687363
 
 ax=plt.axes((0.05,0.65,0.3,0.3)) #fhat 0.9
-ax.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
-bx=plt.axes((0.45,0.65,0.3,0.3)) #fhat 0.5
-bx.annotate('b',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
-cx=plt.axes((0.85,0.65,0.3,0.3)) #fhat 0.1
-cx.annotate('c',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+#ax.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+#bx=plt.axes((0.45,0.65,0.3,0.3)) #fhat 0.5
+#bx.annotate('b',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
+#cx=plt.axes((0.85,0.65,0.3,0.3)) #fhat 0.1
+#cx.annotate('c',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
 
-nens=300
+nens=20#300
 ncycle=1000
-'''
+
 #Read AGS data - selected only
-rhat=0.9
-mbars=[0,600,800,950]
+rhat=0.1
+mbars=[150]
 scatterpoints=np.power(10,np.arange(0,3,0.3)).astype(int)
 for idx,mbar in enumerate(mbars):
 
 	#or, ensembled data	
 	descriptor="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle) 
 	folder="data/ens/"+descriptor
+	descriptor2="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_nsel%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,nsel,rhat,ncycle) 
+	folder2="data/ens/"+descriptor2
+
 	choavg,chostd,_,_=np.loadtxt(folder+"_nens%d.cycle"%(nens),unpack=True)
+	choavg2,chostd2,_,_=np.loadtxt(folder2+"_nens%d.cycle"%(nens),unpack=True)
 	T=np.arange(len(choavg))+1
 	
 	#cx3.plot(T,choavg,marker='o',ms=3,lw=1,label=r'$\hat{f}=%s$'%rhat,c=cset2[idx])
-	ax.plot(T,1-choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(4))#,c=cset2[idx])
+	ax.plot(T,choavg,lw=1,c='C%d'%(idx),label='Top 1')#,c=cset2[idx])
+	ax.plot(T,choavg2,lw=1,c='C%d'%(idx),ls='--',label='Top 5%')#,c=cset2[idx])
 	#cx3.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='^',)#,c=cset2[idx])
 	#cx3.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
-ax.hlines(1-rhat,0,len(T),ls=':',colors='C%d'%(4))
-ax.hlines(1-fu,len(T)-700,len(T),ls='-',colors='black')
-ax.hlines(1-fl,len(T)-700,len(T),ls='--',colors='black')
-
+ax.hlines(rhat,0,len(T),ls=':',colors='black')#'C%d'%(4))
+#ax.hlines(fu,len(T)-700,len(T),ls='-',colors='black')
+#ax.hlines(fl,len(T)-700,len(T),ls='--',colors='black')
+ax.set_xlim(xmin=1)
+#ax.legend(fontsize='small',handlelength=1,labelspacing=0.3,loc=(0.6,0.15))
+ax.set_xscale('log')
+ax.legend(frameon=False,handlelength=1)
+ax.set_xlabel(r'Cycle $k$')
+ax.set_ylabel(r'Selected Frequency $f^*$')
+ax.set_xlim(xmin=1)
+'''
 rhat=0.5
 mbars=[0,600,950]
 scatterpoints=np.power(10,np.arange(0,3,0.3)).astype(int)
@@ -95,15 +107,15 @@ for idx,mbar in enumerate(mbars):
 	T=np.arange(len(choavg))+1
 	
 	#cx3.plot(T,choavg,marker='o',ms=3,lw=1,label=r'$\hat{f}=%s$'%rhat,c=cset2[idx])
-	bx.plot(T,1-choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(2))#,c=cset2[idx])
+	bx.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(2))#,c=cset2[idx])
 	#cx3.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='^',)#,c=cset2[idx])
 	#cx3.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
-bx.hlines(1-rhat,0,len(T),ls=':',colors='C%d'%(2))
-bx.hlines(1-fu,len(T)-700,len(T),ls='-',colors='black')
-bx.hlines(1-fl,len(T)-700,len(T),ls='--',colors='black')
+bx.hlines(rhat,0,len(T),ls=':',colors='C%d'%(2))
+bx.hlines(fu,len(T)-700,len(T),ls='-',colors='black')
+bx.hlines(fl,len(T)-700,len(T),ls='--',colors='black')
 
 rhat=0.1
-mbars=[0,250,450,950]
+mbars=[0,200,450,950]
 scatterpoints=np.power(10,np.arange(0,3,0.3)).astype(int)
 for idx,mbar in enumerate(mbars):
 
@@ -114,41 +126,12 @@ for idx,mbar in enumerate(mbars):
 	T=np.arange(len(choavg))+1
 	
 	#cx3.plot(T,choavg,marker='o',ms=3,lw=1,label=r'$\hat{f}=%s$'%rhat,c=cset2[idx])
-	cx.plot(T,1-choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='black')#'C%d'%(3))#,c=cset2[idx])
+	cx.plot(T,choavg,lw=1,label=r'$\hat{f}=%s$'%rhat,c='C%d'%(3))#,c=cset2[idx])
 	#cx3.scatter(T[scatterpoints],choavg[scatterpoints],c='C%d'%(idx+1),marker='^',)#,c=cset2[idx])
 	#cx3.fill_between(T,choavg+chostd,choavg-chostd,color='C%d'%(idx+1),alpha=0.2)
-
-#realization result samples starting from mbar=250
-mbar=250
-descriptor="AGS_PD_samp_N0%s_mbar%s_r%s_s%s_mu%s_ncomm%d_rhat%s_ncycle%d"%(N0,mbar,r,s,mu,ncomm,rhat,ncycle) 
-infolder="data/raw/"+descriptor+"/"
-escaped=[]
-AGS=[]
-for e in range(nens):
-	AGS.append(np.loadtxt(infolder+"%d.cycle"%(e)))
-AGS=np.array(AGS) # [ensemble, timestamp, (T,selected index,w----,m----)]
-
-T=AGS[0,:,0]
-sel_inds=AGS[:,:,1].astype(int) #selected index - [ensemble, timestamp]
-c_sel=np.zeros((nens,len(T),ncomm)) #c avg datas, [ensemble, timestamp]
-w_cho=np.zeros((nens,len(T))) #w datas, [ensemble, timestamp]
-m_cho=np.zeros((nens,len(T))) #m datas, [ensemble, timestamp]
-#ensemble loop
-for i in range(nens):
-	#timestamp loop
-	for j in range(len(T)):
-		c_sel[i,j,:]=cf(AGS[i,j,ncomm+2:ncomm*2+2],AGS[i,j,ncomm*3+2:])
-		w_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm]
-		m_cho[i,j]=AGS[i,j,sel_inds[i,j]+2+ncomm*3]
-
-#Artificial group selection with the selected
-c_cho=cf(w_cho,m_cho)
-T=np.arange(len(choavg))+1
-for e in [0,2, 35]:#,62, 76]:
-	cx.plot(T,1-c_cho[e],c='grey',alpha=0.5)
-cx.hlines(1-rhat,0,len(T),ls=':',colors='C%d'%(3))
-cx.hlines(1-fu,len(T)-700,len(T),ls='-',colors='black')
-cx.hlines(1-fl,len(T)-700,len(T),ls='--',colors='black')
+cx.hlines(rhat,0,len(T),ls=':',colors='C%d'%(3))
+cx.hlines(fu,len(T)-700,len(T),ls='-',colors='black')
+cx.hlines(fl,len(T)-700,len(T),ls='--',colors='black')
 
 ax.set_ylim(ymin=0,ymax=1)
 ax.set_xlabel(r'Cycle $k$')
@@ -166,15 +149,15 @@ cx.set_xlabel(r'Cycle $k$')
 cx.set_ylim(ymin=0,ymax=1)
 cx.set_xlim(xmin=1)
 cx.set_xscale('log')
-'''
+
 dx=plt.axes((0.10,0.0,0.5,0.5)) #fhat 0.9
 dx.annotate('d',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
 
-dat=np.loadtxt("data/ens/N0%s_r%s_s%s_mu%s_g%s_ncycle%d_diagram_fig2_abs.txt"%(N0,r,s,mu,ncomm,ncycle))
+dat=np.loadtxt("data/ens/N0%s_r%s_s%s_mu%s_g%s_ncycle%d_diagram_fig2.txt"%(N0,r,s,mu,ncomm,ncycle))
 with np.printoptions(precision=2):
 	print(dat)
 
-dat[dat<=0.05]=0
+dat[dat<=0.048]=0
 dat[dat>0.1]=2
 dat[np.where((dat<=0.10) & (dat>0.048))]=1
 
@@ -182,16 +165,15 @@ print(dat)
 
 
 
-rhats=np.array([0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1.0])
+rhats=[0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1.0]
 mbars=np.array([0,50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000])/N0
 
 #dx=plt.axes((0.1,0.1,0.5,0.5))
 frange=np.arange(0.1,1.0,0.1)
 #import matplotlib as mpl
-#oldgrey=mpl.cm.get_cmap('Greys_r')
-#newgrey=mpl.colors.ListedColormap(oldgrey(np.linspace(0.7,1,3)))
-newgrey=mpl.colors.ListedColormap(['#d8b365ff','#5ab4acff','#b4b4b4ff'])
-heatmap=dx.pcolormesh(1-rhats,1-mbars,dat,cmap=newgrey,shading='flat')
+oldgrey=mpl.cm.get_cmap('Greys_r')
+newgrey=mpl.colors.ListedColormap(oldgrey(np.linspace(0.7,1,3)))
+heatmap=dx.pcolormesh(rhats,mbars,dat,cmap=newgrey,shading='flat')
 heatmap.set_clim(0,3)
 cbar=plt.colorbar(heatmap,extend='max',ticks=[0,1,2])
 cbar.set_label(r'Relative error $(f^*_{1000}-\hat{f})/\hat{f}$')
@@ -201,6 +183,8 @@ dx.set_ylim(ymin=0,ymax=1)
 dx.set_xlabel(r'Initial Frequency $\mathbf{\bar{f}_o}$',weight='bold')
 dx.set_ylabel(r'Target Frequency $\mathbf{\hat{f}}$',weight='bold')
 
+fl=0.28580445	#obtained from Fig4
+fu=0.68687363
 #dx.fill_between([0,fl],[fl,fl],color='lightgray',alpha=0.5)
 #dx.fill_between([0,1],[1,1],[fu,fu],color='lightgray',alpha=0.5)
 dx.hlines(fl,0,fl,colors='black',ls='--')
@@ -213,7 +197,7 @@ dx.annotate(r'$\mathbf{f^U}$',weight='bold',xy=(0,fu),xytext=(0.10,fu-0.10),arro
 dx.annotate(r'Success',weight='bold',xy=(0.03,fl-0.23))
 dx.annotate(r'Success',weight='bold',xy=(0.70,fu+0.10))
 dx.annotate(r'Fail',weight='bold',xy=(0.45,0.35))
-
+'''
 '''
 #Suppoting information
 dx.scatter([0.05],[0.85],c='C1',marker='^')
@@ -223,7 +207,7 @@ dx.scatter([0.5],[0.85],c='C1',marker='v')
 dx.scatter([0.5],[0.50],c='C2',marker='v')
 dx.scatter([0.5],[0.15],c='C3',marker='v')
 '''
-
+'''
 cxx=0.7
 cxy=0.25
 #Conclutsion for Two strain case
@@ -337,8 +321,8 @@ ex3.annotate(r'$\mathbf{f^U}$',xy=(0.68,-0.02))
 #ex3.legend(frameon=False,loc=(1.1,0.5))
 ex3.set_xlim(xmin=0,xmax=1)
 ex3.axis('off')
-
+'''
 formatter='svg' #or 'png'
-#plt.savefig('figures/Fig2_fix.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+#plt.savefig('figures/FigS7.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 

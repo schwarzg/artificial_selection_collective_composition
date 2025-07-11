@@ -321,6 +321,6 @@ for a in np.arange(0.2,1,0.2):
 
 formatter='svg'
 #plt.tight_layout()
-plt.savefig('figures/Fig5_v3_fine.'+formatter,bbox_inches='tight',dpi=300,format=formatter)
+#plt.savefig('figures/Fig5_v3_fine.'+formatter,bbox_inches='tight',dpi=300,format=formatter)
 plt.show()
 
