@@ -27,6 +27,7 @@ from one_step_functions import *
 from custom_plot import *
 ##Load data
 folder="data/cond/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)
+folder2="data/cond/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s_fix"%(N0,r,mu,s,ncomm,nens)
 
 #Simulation
 sim_raw=np.loadtxt(folder+"_simraw.dat")
@@ -36,15 +37,18 @@ sel_median=np.loadtxt(folder+"_smedian.dat")
 sel_mean=np.loadtxt(folder+"_smean.dat")
 
 #Theory
-ext_pdf=np.loadtxt(folder+"_ext.dat")
-ext_median=np.loadtxt(folder+"_emedian.dat")
-ext_mean=np.loadtxt(folder+"_emean.dat")
+ext_pdf=np.loadtxt(folder2+"_ext.dat")
+ext_median=np.loadtxt(folder2+"_emedian.dat")
+ext_mean=np.loadtxt(folder2+"_emean.dat")
 
 fbins_t=[]
 fbins_s=[]
 f0=np.arange(0.00,0.99,0.01)
-for fsel in f0: 
+for i,fsel in enumerate(f0): 
 	fbins_s.append(np.linspace(np.maximum(0,fsel-0.05),np.minimum(1,fsel+0.05),30))
+
+f0t=np.arange(0.01,0.99,0.01)
+for i,fsel in enumerate(f0t): 
 	fbins_t.append(np.linspace(np.maximum(0,fsel-0.05),np.minimum(1,fsel+0.05),30))
 
 fbins_s=np.array(fbins_s)
@@ -52,9 +56,10 @@ fbins_t=np.array(fbins_t)
 mask=[9,49,89]#=range(10,len(f0),10)
 
 #calculate fufl
-extmean_interp=itp.interp1d(f0,ext_median-f0)
+extmean_interp=itp.interp1d(f0t,ext_median-f0t)
 fl_ext=opt.root(extmean_interp,0.3).x
 fu_ext=opt.root(extmean_interp,0.8).x
+print(fl_ext,fu_ext)
 import scipy as sc
 import scipy.optimize as opt
 import scipy.special as spc
@@ -95,9 +100,9 @@ ax.set_ylim(ymin=-0.018,ymax=0.018)
 ax.set_ylabel(r'$\mathbf{f^*_{k+1}-f^*_k}$')
 ax.set_xlabel(r"Selected mutant frequency in cycle $\mathbf{k}$, $\mathbf{f^*_k}$")
 
-ax.plot(1-f0,-(sel_median-f0),c='C0',label='Simulation')
-ax.plot(1-f0,-(ext_median-f0),c='C1',label='Equation[1]')
-ax.plot(1-zetas,-Ds,label=r'$Equation[2]$',c='C2')
+ax.plot(f0,(sel_median-f0),c='C0',label='Simulation')
+ax.plot(f0t,(ext_median-f0t),c='C1',label='Equation[1]')
+ax.plot(zetas,Ds,label=r'$Equation[2]$',c='C2')
 #ax.plot(zetas,Ds0,label=r'$D(\zeta)$',c='C3')
 ax.legend(frameon=False)
 #ax.vlines([fl_ext,fu_ext],-0.05,0.05,colors='black',ls='--')
@@ -116,7 +121,7 @@ idx2=49
 idx3=89
 bx.hlines(0,0,1,colors='black',ls=':')
 c=['#17becf','#9467bd','black']
-boxes=bx.boxplot([-sim_raw[idx1]+f0[idx1],-sel_raw[idx1]+np.mean(sim_raw[idx1]),-sel_raw[idx1]+f0[idx1]],positions=[0.04,0.1,0.16],widths=0.05,sym='')
+boxes=bx.boxplot([sim_raw[idx1]-f0[idx1],sel_raw[idx1]-np.mean(sim_raw[idx1]),sel_raw[idx1]-f0[idx1]],positions=[0.04,0.1,0.16],widths=0.05,sym='')
 for box,med,col in zip(boxes['boxes'],boxes['medians'],c):
 	box.set_color(col)
 	med.set_color(col)
@@ -254,5 +259,5 @@ cx3.set_xlim(xmin=0,xmax=1)
 cx3.axis('off')
 '''
 formatter='svg'
-#plt.savefig('figures/Fig4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+#plt.savefig('figures/Fig3_fix.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()

@@ -294,6 +294,6 @@ cx3.set_xlabel(r'Time $t$')
 
 formatter='png' #or 'png'
 #plt.savefig('figures/FigS4.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
-plt.savefig('figures/FigS4_v2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+#plt.savefig('figures/FigS4_v2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 

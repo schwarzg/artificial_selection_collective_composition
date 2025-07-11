@@ -30,6 +30,7 @@ from custom_plot import *
 
 ##Load data
 folder="data/cond/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s"%(N0,r,mu,s,ncomm,nens)
+foldere="data/cond/conditional_probability_N0%s_f0_r%s_mu%s_s%s_g%s_nens%s_fix2"%(N0,r,mu,s,ncomm,1000)
 
 #Simulation
 sel_pdf=np.loadtxt(folder+"_sel.dat")
@@ -37,9 +38,9 @@ sel_median=np.loadtxt(folder+"_smedian.dat")
 sel_mean=np.loadtxt(folder+"_smean.dat")
 
 #Theory
-ext_pdf=np.loadtxt(folder+"_ext.dat")
-ext_median=np.loadtxt(folder+"_emedian.dat")
-ext_mean=np.loadtxt(folder+"_emean.dat")
+ext_pdf=np.loadtxt(foldere+"_ext.dat")
+ext_median=np.loadtxt(foldere+"_emedian.dat")
+ext_mean=np.loadtxt(foldere+"_emean.dat")
 
 fbins_t=[]
 fbins_s=[]
@@ -138,5 +139,5 @@ cx.annotate(r'$f^L$',xy=(0,fl),xytext=(0.10,fl+0.10),arrowprops=dict(arrowstyle=
 #ax.set_xticklabels(['0.0','0.2',r'$f^L$','0.4','0.6','0.8','1.0'])
 
 formatter='svg'
-#plt.savefig('figures/FigS8.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/FigS8_fix.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()

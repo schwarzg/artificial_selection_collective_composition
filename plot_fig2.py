@@ -50,8 +50,8 @@ cset2=[
 '#1F77B4','#0D89E0','#273E4F'
 ]
 
-fl=0.28580445	#obtained from Fig4
-fu=0.68687363
+fl=0.28615573	#obtained from Fig4
+fu=0.76122767
 
 ax=plt.axes((0.05,0.65,0.3,0.3)) #fhat 0.9
 ax.annotate('a',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
@@ -62,7 +62,7 @@ cx.annotate('c',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
 
 nens=300
 ncycle=1000
-
+'''
 #Read AGS data - selected only
 rhat=0.9
 mbars=[0,600,800,950]
@@ -166,7 +166,7 @@ cx.set_xlabel(r'Cycle $k$')
 cx.set_ylim(ymin=0,ymax=1)
 cx.set_xlim(xmin=1)
 cx.set_xscale('log')
-
+'''
 dx=plt.axes((0.10,0.0,0.5,0.5)) #fhat 0.9
 dx.annotate('d',(-0.25,1.05),xycoords='axes fraction',fontweight='bold')
 
@@ -201,13 +201,11 @@ dx.set_ylim(ymin=0,ymax=1)
 dx.set_xlabel(r'Initial Frequency $\mathbf{\bar{f}_o}$',weight='bold')
 dx.set_ylabel(r'Target Frequency $\mathbf{\hat{f}}$',weight='bold')
 
-fl=0.28580445	#obtained from Fig4
-fu=0.68687363
 #dx.fill_between([0,fl],[fl,fl],color='lightgray',alpha=0.5)
 #dx.fill_between([0,1],[1,1],[fu,fu],color='lightgray',alpha=0.5)
-dx.hlines(1-fl,1-fl,1,colors='black',ls='--')
-dx.vlines(1-fl,1-fl,1,colors='black',ls='--')
-dx.hlines(1-fu,0,1,colors='black',ls='-')
+dx.hlines(fl,0,fl,colors='black',ls='--')
+dx.vlines(fl,0,fl,colors='black',ls='--')
+dx.hlines(fu,0,1,colors='black',ls='-')
 dx.annotate(r'$\mathbf{f^L}$',weight='bold',xy=(0,fl),xytext=(0.10,fl+0.10),arrowprops=dict(arrowstyle='->'))
 dx.annotate(r'$\mathbf{f^L}$',weight='bold',xy=(fl,0),xytext=(fl+0.10,0.10),arrowprops=dict(arrowstyle='->'))
 dx.annotate(r'$\mathbf{f^U}$',weight='bold',xy=(0,fu),xytext=(0.10,fu-0.10),arrowprops=dict(arrowstyle='->'))
@@ -341,6 +339,6 @@ ex3.set_xlim(xmin=0,xmax=1)
 ex3.axis('off')
 
 formatter='svg' #or 'png'
-plt.savefig('figures/Fig2.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
+plt.savefig('figures/Fig2_fix.'+formatter,dpi=300,bbox_inches='tight',format=formatter)
 plt.show()
 
